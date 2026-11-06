@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IRON DRAGON — 거북선(龜船 1592) 인터랙티브 3D 공간 쇼케이스 | Cyber-Joseon Heritage Portal</title>
+
+  <!-- Google Fonts: Cinzel Decorative, Cinzel, Playfair Display, Noto Serif KR, Plus Jakarta Sans, Barlow, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Model Viewer Web Component (Method 1: Real .GLB / WebXR Engine identical to MetaDwipa) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+  <!-- Three.js & GLTFLoader CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0D1117',
+            mystic: '#161B22',
+            charcoal: '#161B22',
+            container: '#161B22',
+            borderCustom: '#30363D',
+            pualam: '#F0F6FC',
+            offWhite: '#F0F6FC',
+            offwhite: '#F0F6FC',
+            slateText: '#8B949E',
+            slateCustom: '#8B949E',
+            slateMuted: '#8B949E',
+            gold: {
+              antique: '#D4AF37',
+              muted: '#E5C158',
+              glow: 'rgba(212, 175, 55, 0.45)'
+            },
+            ethereal: {
+              teal: '#2DD4BF',
+              glow: 'rgba(45, 212, 191, 0.35)'
+            },
+            teal: {
+              ethereal: '#2DD4BF',
+              glow: 'rgba(45, 212, 191, 0.45)'
+            },
+            cyan: {
+              ethereal: '#2DD4BF',
+              glow: 'rgba(45, 212, 191, 0.45)'
+            },
+            volcanic: {
+              ember: '#E06A3B',
+              glow: 'rgba(224, 106, 59, 0.4)'
+            },
+            moss: {
+              forest: '#2E6F56',
+              light: '#3ea883',
+              glow: 'rgba(62, 168, 131, 0.4)'
+            }
+          },
+          fontFamily: {
+            cinzel: ['"Cinzel Decorative"', '"Noto Serif KR"', 'serif'],
+            cinzelText: ['"Cinzel"', '"Noto Serif KR"', 'serif'],
+            display: ['"Cinzel Decorative"', '"Noto Serif KR"', 'serif'],
+            editorial: ['"Playfair Display"', '"Noto Serif KR"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Serif KR"', 'sans-serif'],
+            barlow: ['"Barlow"', '"Plus Jakarta Sans"', 'sans-serif'],
+            'body-text': ['"Barlow"', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'gold-glow': '0 0 25px rgba(212, 175, 55, 0.35)',
+            'teal-glow': '0 0 25px rgba(45, 212, 191, 0.35)',
+            'cyan-glow': '0 0 25px rgba(45, 212, 191, 0.35)',
+            'volcanic-glow': '0 0 25px rgba(224, 106, 59, 0.4)',
+            'inner-cyber': 'inset 0 0 30px rgba(45, 212, 191, 0.12)'
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'spin-slow': 'spin 25s linear infinite'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background-color: #0D1117;
+      color: #F0F6FC;
+      overflow-x: hidden;
+      font-family: 'Plus Jakarta Sans', 'Noto Serif KR', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0D1117;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D4AF37;
+      border-radius: 9999px;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Glow utilities */
+    .text-glow-gold {
+      text-shadow: 0 0 16px rgba(212, 175, 55, 0.6), 0 0 32px rgba(212, 175, 55, 0.25);
+    }
+    .text-glow-teal {
+      text-shadow: 0 0 16px rgba(45, 212, 191, 0.7), 0 0 30px rgba(45, 212, 191, 0.3);
+    }
+
+    /* Glassmorphism Classes */
+    .glass-panel {
+      background: rgba(16, 22, 30, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .glass-panel-clear {
+      background: rgba(13, 17, 23, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .glass-card {
+      background: rgba(22, 27, 34, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid #30363D;
+    }
+    .glass-card-subtle {
+      background: rgba(13, 17, 23, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(48, 54, 61, 0.8);
+    }
+
+    /* Hologram Shimmer */
+    .holo-sheen {
+      background: linear-gradient(
+        135deg,
+        rgba(212, 175, 55, 0.15) 0%,
+        rgba(45, 212, 191, 0.28) 50%,
+        rgba(212, 175, 55, 0.15) 100%
+      );
+      background-size: 250% 250%;
+      animation: holoSheen 6s ease infinite;
+    }
+    @keyframes holoSheen {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Transparent Cosmic Portal Rings */
+    @keyframes spinClockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spinCounterClockwise {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes pulseAura {
+      0%, 100% { transform: scale(1); opacity: 0.45; filter: drop-shadow(0 0 30px rgba(45,212,191,0.25)); }
+      50% { transform: scale(1.06); opacity: 0.75; filter: drop-shadow(0 0 50px rgba(212,175,55,0.45)); }
+    }
+    @keyframes mistFlow {
+      0% { opacity: 0.15; transform: scale(0.9) translate(-5px, 0); }
+      50% { opacity: 0.38; transform: scale(1.08) translate(6px, -4px); }
+      100% { opacity: 0.15; transform: scale(0.9) translate(-5px, 0); }
+    }
+    @keyframes shineRay {
+      0% { transform: translateX(-150%) skewX(-25deg); }
+      100% { transform: translateX(250%) skewX(-25deg); }
+    }
+    @keyframes ctaParticleFloat {
+      0% { transform: translateY(0px) scale(0.8); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-24px) scale(1.2); opacity: 0; }
+    }
+
+    .portal-ring-outer { animation: spinClockwise 56s linear infinite; }
+    .portal-ring-inner { animation: spinCounterClockwise 38s linear infinite; }
+    .portal-core-pulse { animation: pulseAura 8s ease-in-out infinite; }
+    .mist-layer { animation: mistFlow 9s ease-in-out infinite alternate; }
+
+    /* 3D Diorama Interactive Gimbal Stage */
+    .diorama-perspective-stage {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+    .diorama-card-3d {
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.08s ease-out;
+    }
+    /* Seamless blending of dark obsidian diorama background into the canvas */
+    .diorama-render-img {
+      mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, rgba(0,0,0,1) 58%, rgba(0,0,0,0) 98%);
+      -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, rgba(0,0,0,1) 58%, rgba(0,0,0,0) 98%);
+      filter: contrast(1.06) saturate(1.08) drop-shadow(0 28px 38px rgba(0, 0, 0, 0.92));
+    }
+
+    /* Sound visualizer */
+    @keyframes soundBar {
+      0%, 100% { height: 4px; }
+      50% { height: 15px; }
+    }
+    .bar-1 { animation: soundBar 1.1s ease-in-out infinite; }
+    .bar-2 { animation: soundBar 0.85s ease-in-out 0.2s infinite; }
+    .bar-3 { animation: soundBar 1.3s ease-in-out 0.4s infinite; }
+    .bar-paused { animation-play-state: paused !important; height: 3px !important; }
+
+    /* Scanline & 3D Topo Pin Overlay */
+    .scanline-effect {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 4px 100%;
+    }
+    .topo-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      z-index: 25;
+    }
+    .topo-pin:hover {
+      transform: translate(-50%, -50%) scale(1.15);
+    }
+
+    /* Dynamic Text Resizer */
+    body.text-size-sm .font-body-text, body.text-size-sm #loreParagraph { font-size: 0.78rem !important; line-height: 1.5 !important; }
+    body.text-size-normal .font-body-text, body.text-size-normal #loreParagraph { font-size: 0.88rem !important; line-height: 1.65 !important; }
+    body.text-size-lg .font-body-text, body.text-size-lg #loreParagraph { font-size: 1.02rem !important; line-height: 1.75 !important; }
+
+    /* Light Mode Support for Monograph View */
+    html:not(.dark) body {
+      background-color: #F6F8FA !important;
+      color: #0F172A !important;
+    }
+    html:not(.dark) .glass-card, html:not(.dark) .glass-panel {
+      background: rgba(255, 255, 255, 0.94) !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A !important;
+    }
+    html:not(.dark) .text-offwhite, html:not(.dark) .text-offWhite, html:not(.dark) .text-pualam {
+      color: #0F172A !important;
+    }
+    html:not(.dark) .text-slateCustom, html:not(.dark) .text-slateMuted {
+      color: #475569 !important;
+    }
+  </style>
+</head>
+
+<body class="relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden bg-obsidian text-offWhite select-none text-size-normal">
+
+  <!-- Hidden Local File Input for GLB Models (Method 1: Identical to MetaDwipa) -->
+  <input type="file" id="glbFileInput" accept=".glb,.gltf" class="hidden" onchange="handleFileInputChange(event)">
+
+  <!-- Deep Naval Cyber Atmospheric Background -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(22,58,61,0.38)_0%,rgba(13,17,23,0.95)_70%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.06)_0%,transparent_70%)]"></div>
+    <div class="fixed -top-40 -left-40 w-96 h-96 bg-gold-antique/10 rounded-full blur-[130px]"></div>
+    <div class="fixed top-1/2 -right-40 w-[450px] h-[450px] bg-teal-ethereal/10 rounded-full blur-[150px]"></div>
+  </div>
+
+  <!-- Interactive Stardust & Constellation Particles Canvas -->
+  <canvas id="ambientCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- Audio Prompt Banner (Shown if browser blocks unmuted autoplay) -->
+  <div id="audioAutoplayNotice" onclick="unlockAudioByClick()" class="fixed top-20 sm:top-24 left-1/2 -translate-x-1/2 z-50 hidden cursor-pointer items-center gap-2.5 px-4 py-1.5 rounded-full bg-obsidian/95 border border-gold-antique/70 text-gold-muted text-xs font-mono shadow-[0_0_24px_rgba(212,175,55,0.45)] transition-all hover:scale-105 animate-pulse">
+    <span>🔊</span>
+    <span>Click / tap anywhere to enable "Tide of the Iron Dragon" BGM</span>
+    <span class="text-ethereal-teal">✦</span>
+  </div>
+
+  <!-- Workspace Background Audio: Tide_of_the_Iron_Dragon.mp3 -->
+  <audio id="bgmAudio" src="Tide_of_the_Iron_Dragon.mp3" loop preload="auto" autoplay></audio>
+
+  <!-- =========================================================================
+       UNIFIED TOP HEADER BAR (BENCHMARKED FROM METADWIPA.ID)
+       ========================================================================= -->
+  <header class="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6 md:px-10 py-2.5 glass-panel border-b border-gold-antique/20 shadow-xl">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+
+      <!-- Left: Brand Emblem Logo with Radial Golden Glow Backlight -->
+      <div onclick="switchRealm('gate')" class="relative group cursor-pointer flex items-center gap-2.5 shrink-0" title="Return to The Genesis Gate">
+        <div class="absolute -inset-2 bg-gradient-to-r from-gold-antique/50 via-ethereal-teal/30 to-gold-antique/50 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        <div class="relative z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#1b2733] to-[#0d1117] border border-gold-antique/60 flex items-center justify-center shadow-gold-glow group-hover:scale-105 transition-transform">
+          <svg viewBox="0 0 40 40" class="w-6 h-6 sm:w-7 sm:h-7 text-gold-antique">
+            <polygon points="20,3 35,11 35,29 20,37 5,29 5,11" fill="none" stroke="currentColor" stroke-width="2" />
+            <polygon points="20,8 30,14 30,26 20,32 10,26 10,14" fill="rgba(45,212,191,0.18)" stroke="#2DD4BF" stroke-width="1.2" />
+            <circle cx="20" cy="20" r="4" fill="#D4AF37" />
+          </svg>
+        </div>
+        <div class="relative z-10 flex flex-col">
+          <span class="font-cinzel text-base sm:text-xl md:text-2xl font-black tracking-wider text-gold-antique text-glow-gold leading-none">
+            IRON DRAGON
+          </span>
+          <span class="text-[9px] sm:text-[10px] font-mono tracking-[0.2em] text-ethereal-teal uppercase">
+            GEOBUKSEON · 龜船 1592
+          </span>
+        </div>
+      </div>
+
+      <!-- Center: 3-Realm Spatial Navigation Switcher -->
+      <nav class="hidden md:flex items-center bg-obsidian/80 p-1 rounded-full border border-gold-antique/30 gap-1">
+        <button id="navRealmBtn-gate" onclick="switchRealm('gate')" class="px-3.5 py-1 rounded-full text-xs font-mono font-bold transition-all bg-gradient-to-r from-gold-antique to-teal-ethereal text-obsidian shadow-gold-glow cursor-pointer">
+          01. 제네시스 게이트
+        </button>
+        <button id="navRealmBtn-realm" onclick="switchRealm('realm')" class="px-3.5 py-1 rounded-full text-xs font-mono font-medium text-slateCustom hover:text-offwhite transition-all cursor-pointer">
+          02. 3D 전술 도감
+        </button>
+        <button id="navRealmBtn-science" onclick="switchRealm('science')" class="px-3.5 py-1 rounded-full text-xs font-mono font-medium text-slateCustom hover:text-offwhite transition-all cursor-pointer">
+          03. 다학제 심층 고증
+        </button>
+      </nav>
+
+      <!-- Right Controls: Quadrilingual Switcher, Text Size, Theme, Audio & Fullscreen -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Quadrilingual Language Switcher (KO, HAN, EN, ID) -->
+        <div class="flex items-center bg-charcoal/90 rounded-lg p-0.5 border border-gold-antique/35">
+          <button onclick="setLanguage('ko')" id="langBtn-ko" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] font-bold transition-all bg-gold-antique text-obsidian shadow-sm cursor-pointer">한국어</button>
+          <button onclick="setLanguage('han')" id="langBtn-han" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] font-semibold text-slateCustom hover:text-offwhite transition-all cursor-pointer" title="國漢文 古語錄">古語</button>
+          <button onclick="setLanguage('en')" id="langBtn-en" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] font-semibold text-slateCustom hover:text-offwhite transition-all cursor-pointer">EN</button>
+          <button onclick="setLanguage('id')" id="langBtn-id" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] font-semibold text-slateCustom hover:text-offwhite transition-all cursor-pointer" title="Bahasa Indonesia">ID</button>
+        </div>
+
+        <!-- Text Resizer Button -->
+        <button onclick="cycleTextSize()" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg bg-charcoal/80 hover:bg-gold-antique/20 border border-gold-antique/40 text-gold-antique transition-all cursor-pointer" title="텍스트 크기 조절 (A- / A / A+)">
+          <span class="font-mono font-bold text-xs">AA</span>
+        </button>
+
+        <!-- Theme Switcher Button -->
+        <button onclick="toggleThemeMode()" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg bg-charcoal/80 hover:bg-gold-antique/20 border border-gold-antique/40 text-gold-antique transition-all cursor-pointer" title="다크 / 라이트 테마 전환">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+
+        <!-- Audio Toggle Button -->
+        <button
+          id="audioToggleBtn"
+          onclick="toggleAudio()"
+          title="Toggle Tide of the Iron Dragon Audio"
+          class="group relative flex items-center gap-1.5 px-2.5 h-8 sm:h-9 rounded-full bg-mystic/90 border border-gold-antique/45 text-gold-antique hover:border-gold-antique hover:bg-gold-antique/15 hover:shadow-[0_0_18px_rgba(212,175,55,0.4)] transition-all cursor-pointer">
+          <svg id="speakerIcon" class="w-4 h-4 fill-current transition-transform duration-200 group-hover:scale-110" viewBox="0 0 24 24">
+            <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2.5-1.23L6.5 6H2v12h4.5l5 4V2z"/>
+          </svg>
+          <span id="audioLabel" class="hidden lg:inline text-[11px] font-mono text-teal-ethereal">철룡의 파도 (BGM)</span>
+          <div id="soundWaves" class="flex items-end gap-[1.5px] h-3 px-1">
+            <span class="w-[2px] bg-ethereal-teal rounded-full bar-1"></span>
+            <span class="w-[2px] bg-gold-antique rounded-full bar-2"></span>
+            <span class="w-[2px] bg-ethereal-teal rounded-full bar-3"></span>
+          </div>
+        </button>
+
+        <!-- Fullscreen Toggle Button -->
+        <button
+          id="fullscreenBtn"
+          onclick="toggleFullscreen()"
+          title="Toggle Fullscreen Mode"
+          class="group flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-mystic/90 border border-ethereal-teal/45 text-ethereal-teal hover:border-ethereal-teal hover:bg-ethereal-teal/15 hover:shadow-[0_0_18px_rgba(45,212,191,0.4)] transition-all cursor-pointer">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2 transition-transform duration-200 group-hover:scale-110" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Realm Switcher Row -->
+    <div class="flex md:hidden items-center justify-center gap-1.5 pt-2 mt-2 border-t border-white/10">
+      <button onclick="switchRealm('gate')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-gold-antique/20 text-gold-antique border border-gold-antique/40">01. 포털 게이트</button>
+      <button onclick="switchRealm('realm')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-teal-ethereal/20 text-teal-ethereal border border-teal-ethereal/40">02. 3D 전술 도감</button>
+      <button onclick="switchRealm('science')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-volcanic-ember/20 text-volcanic-ember border border-volcanic-ember/40">03. 심층 고증</button>
+    </div>
+  </header>
+
+
+  <!-- =========================================================================
+       VIEW 01: THE GENESIS GATE (제네시스 게이트 — 거북선 포털 랜딩)
+       ========================================================================= -->
+  <section id="view-gate" class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-24 sm:pt-28 pb-10 text-center max-w-5xl mx-auto w-full my-auto">
+
+    <!-- SPATIAL PORTAL RING CONTAINER (High-Detail Sculpted Geobukseon Diorama + 3D Orbit) -->
+    <div class="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 my-1 flex items-center justify-center">
+
+      <!-- Ambient Backlight Pulsing Core -->
+      <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-ethereal-teal/20 via-gold-antique/15 to-transparent blur-3xl portal-core-pulse pointer-events-none"></div>
+
+      <!-- Outer Ring: Antique Gold Joseon Celestial Glyphs -->
+      <div class="absolute inset-0 portal-ring-outer flex items-center justify-center pointer-events-none opacity-45 hover:opacity-75 transition-opacity duration-700">
+        <svg viewBox="0 0 300 300" class="w-full h-full text-gold-antique drop-shadow-[0_0_12px_rgba(212,175,55,0.35)]">
+          <circle cx="150" cy="150" r="142" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="8 8 2 8" />
+          <circle cx="150" cy="150" r="133" fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.45"/>
+          <g stroke="currentColor" stroke-width="1.4" opacity="0.65">
+            <line x1="150" y1="8" x2="150" y2="24" />
+            <line x1="150" y1="276" x2="150" y2="292" />
+            <line x1="8" y1="150" x2="24" y2="150" />
+            <line x1="276" y1="150" x2="292" y2="150" />
+            <line x1="50" y1="50" x2="62" y2="62" />
+            <line x1="238" y1="238" x2="250" y2="250" />
+            <line x1="250" y1="50" x2="238" y2="62" />
+            <line x1="62" y1="238" x2="50" y2="250" />
+          </g>
+          <polygon points="150,18 158,32 142,32" fill="currentColor" opacity="0.6"/>
+          <polygon points="150,282 142,268 158,268" fill="currentColor" opacity="0.6"/>
+          <polygon points="18,150 32,142 32,158" fill="currentColor" opacity="0.6"/>
+          <polygon points="282,150 268,158 268,142" fill="currentColor" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <!-- Inner Ring: Ethereal Cyan Spatial Tactical Ring -->
+      <div class="absolute inset-3 portal-ring-inner flex items-center justify-center pointer-events-none opacity-50 hover:opacity-75 transition-opacity duration-700">
+        <svg viewBox="0 0 260 260" class="w-full h-full text-ethereal-teal drop-shadow-[0_0_14px_rgba(45,212,191,0.35)]">
+          <circle cx="130" cy="130" r="116" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="14 12 4 10" />
+          <circle cx="130" cy="130" r="104" fill="none" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5" stroke-dasharray="6 6" />
+          <circle cx="130" cy="18" r="3" fill="currentColor"/>
+          <circle cx="242" cy="130" r="3" fill="currentColor"/>
+          <circle cx="130" cy="242" r="3" fill="currentColor"/>
+          <circle cx="18" cy="130" r="3" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <!-- Portal Center Mist Atmosphere -->
+      <div class="absolute inset-7 rounded-full bg-gradient-to-b from-ethereal-teal/15 via-mystic/50 to-obsidian/90 border border-ethereal-teal/25 pointer-events-none shadow-inner backdrop-blur-[1px]">
+        <div class="mist-layer absolute inset-0 bg-radial from-ethereal-teal/20 via-transparent to-transparent pointer-events-none"></div>
+        <div class="mist-layer absolute inset-0 bg-radial from-gold-antique/15 via-transparent to-transparent pointer-events-none" style="animation-delay: -3.5s;"></div>
+      </div>
+
+      <!-- Portal Centerpiece: Real 3D Geobukseon .GLB inside <model-viewer> with Diorama Poster -->
+      <div id="perahu3DContainer" class="diorama-perspective-stage absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[440px] h-64 sm:h-72 md:h-80 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible pointer-events-auto" title="드래그하여 3D 거북선을 360도 회전하세요">
+        <model-viewer
+          id="gateModelViewer"
+          src="bbd6136208bf4951abfdfa1c8d4fa103.glb"
+          poster="assets/diorama-node3.png"
+          alt="Geobukseon 3D Ironclad Model"
+          auto-rotate
+          rotation-per-second="24deg"
+          camera-controls
+          disable-zoom
+          interaction-prompt="none"
+          shadow-intensity="1.6"
+          shadow-softness="0.8"
+          exposure="1.25"
+          style="width: 100%; height: 100%; background: transparent; --poster-color: transparent;">
+        </model-viewer>
+      </div>
+    </div>
+
+    <!-- Super-Headline Badge -->
+    <div class="mt-3 inline-flex items-center gap-2 px-4 py-1 rounded-full bg-gold-antique/10 border border-gold-antique/30 backdrop-blur-sm">
+      <span class="text-gold-antique text-xs">✦</span>
+      <h2 id="gateBadgeText" class="font-cinzelText text-[11px] sm:text-xs font-bold tracking-[0.2em] text-gold-muted uppercase text-glow-gold">
+        고대 조선 해양 유산과 디지털 공간 영역의 조우
+      </h2>
+      <span class="text-gold-antique text-xs">✦</span>
+    </div>
+
+    <!-- Main Headline -->
+    <h1 class="mt-2.5 font-cinzel text-2xl sm:text-4xl md:text-[2.65rem] font-black tracking-tight text-offWhite leading-tight max-w-4xl">
+      <span id="gateTitlePrefix">IRON DRAGON:</span>
+      <span id="gateTitleHighlight" class="bg-gradient-to-r from-gold-antique via-offWhite to-ethereal-teal bg-clip-text text-transparent">불패의 신화 거북선</span>
+      <span id="gateTitleSuffix">사이버 공간 성소</span>
+    </h1>
+
+    <!-- Description Paragraph -->
+    <p id="gateDescParagraph" class="mt-3 font-barlow text-[#cccccc] text-sm sm:text-[15px] md:text-[16px] max-w-4xl font-normal leading-relaxed text-center px-4 tracking-wide">
+      <b>아이언 드래곤(Iron Dragon)</b>은 1592년 임진왜란의 파도를 가른 조선 수군의 돌격 철갑선 <b>거북선(龜船)</b>을 현대적 사이버 헤리티지 미학과 실시간 3D 웹 기술로 재해석한 디지털 아카이브입니다. 단순한 역사 기록의 열람을 넘어, 인터랙티브 WebGL 3D 구조 해부, 다국어 AI 음성 도슨트, WebAR 공간 투영, 그리고 360° 가상현실(VR) 해전 체험을 통해 역사를 <b>직접 느끼고, 탐험하며, 살아 숨 쉬게 합니다.</b>
+    </p>
+
+    <!-- Quick Tech Badges -->
+    <div class="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-2xl">
+      <span class="px-3.5 py-1 text-[11px] font-mono rounded-full bg-mystic/80 border border-ethereal-teal/35 text-ethereal-teal backdrop-blur-sm shadow-sm">
+        ✦ AI 3D Diorama & .GLB Hybrid
+      </span>
+      <span class="px-3.5 py-1 text-[11px] font-mono rounded-full bg-mystic/80 border border-gold-antique/35 text-gold-muted backdrop-blur-sm shadow-sm">
+        ✦ AI Quadrilingual Docent
+      </span>
+      <span class="px-3.5 py-1 text-[11px] font-mono rounded-full bg-mystic/80 border border-ethereal-teal/35 text-ethereal-teal backdrop-blur-sm shadow-sm">
+        ✦ WebAR & 360° Naval VR
+      </span>
+    </div>
+
+    <!-- Primary Attractive CTA Button -->
+    <div class="mt-6 w-full flex items-center justify-center">
+      <div class="relative group">
+        <div class="absolute -inset-1.5 bg-gradient-to-r from-ethereal-teal via-gold-antique to-ethereal-teal rounded-full blur-lg opacity-70 group-hover:opacity-100 transition duration-700 group-hover:duration-200 animate-pulse"></div>
+
+        <div class="pointer-events-none absolute inset-0 overflow-visible">
+          <span class="absolute -top-2 left-6 w-1.5 h-1.5 rounded-full bg-ethereal-teal shadow-[0_0_8px_#2DD4BF] animate-[ctaParticleFloat_2.4s_infinite]"></span>
+          <span class="absolute -bottom-2 right-8 w-2 h-2 rounded-full bg-gold-antique shadow-[0_0_8px_#D4AF37] animate-[ctaParticleFloat_3s_infinite_0.8s]"></span>
+          <span class="absolute top-1/2 -right-3 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#fff] animate-[ctaParticleFloat_2s_infinite_1.4s]"></span>
+          <span class="absolute top-1/2 -left-3 w-1.5 h-1.5 rounded-full bg-ethereal-teal shadow-[0_0_6px_#2DD4BF] animate-[ctaParticleFloat_2.8s_infinite_0.4s]"></span>
+        </div>
+
+        <button
+          id="enterRealmBtn"
+          onclick="triggerPortalTransition('realm')"
+          class="relative px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#0e272a] via-[#163a3d] to-[#0e272a] border border-ethereal-teal/80 text-offWhite font-semibold text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 transform group-hover:scale-105 active:scale-95 shadow-[0_0_35px_rgba(45,212,191,0.45)] flex items-center gap-3 font-mono cursor-pointer overflow-hidden">
+          <div class="absolute inset-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-25deg] pointer-events-none animate-[shineRay_3.2s_infinite]"></div>
+
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-ethereal-teal opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-ethereal-teal"></span>
+          </span>
+
+          <span class="relative z-10 text-offWhite group-hover:text-white drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]">
+            <span id="gateCtaPrefix">리빙 렐름 캔버스 진입:</span>
+            <span id="gateCtaHighlight" class="text-gold-muted font-bold group-hover:text-gold-antique transition-colors ml-1">충무공 거북선 (龜船 1592)</span>
+          </span>
+
+          <span class="relative z-10 text-ethereal-teal group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================================
+       VIEW 02: SPATIAL STORYTELLING CANVAS (3D 디오라마 + .GLB + 3D 구조 해부)
+       Benchmarked from metadwipa.id/tangkuban-parahu.html
+       ========================================================================= -->
+  <section id="view-realm" class="hidden relative z-10 pt-20 sm:pt-24 pb-6 w-full flex-1 flex flex-col justify-between">
+
+    <!-- 4 IMMERSIVE BUTTONS (DESKTOP RIGHT DOCK) -->
+    <aside class="hidden lg:flex fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 flex-col space-y-3.5 pointer-events-auto">
+      <!-- 1. CINEMATIC VIDEO -->
+      <div class="flex items-center space-x-3 justify-end group">
+        <div class="text-right leading-tight pointer-events-none select-none drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]">
+          <span class="block text-gold-muted group-hover:text-gold-antique text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">CINEMATIC</span>
+          <span class="block text-gold-muted group-hover:text-gold-antique text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">BATTLE FILM</span>
+        </div>
+        <button onclick="launchImmersiveAction('video')" class="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-charcoal/90 hover:bg-gold-antique/20 border border-gold-antique/50 hover:border-gold-antique text-gold-antique shadow-gold-glow backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer shrink-0" title="한산도 해전 전술 시네마틱 영상">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 2. AUDIO STORY -->
+      <div class="flex items-center space-x-3 justify-end group">
+        <div class="text-right leading-tight pointer-events-none select-none drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]">
+          <span class="block text-teal-ethereal group-hover:text-white text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">AUDIO</span>
+          <span class="block text-teal-ethereal group-hover:text-white text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">SYMPHONY</span>
+        </div>
+        <button onclick="launchImmersiveAction('audio')" class="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#162725] via-[#1a3835] to-[#162725] hover:from-teal-ethereal/30 hover:to-gold-antique/30 border border-teal-ethereal/70 hover:border-teal-ethereal text-teal-ethereal shadow-teal-glow backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer shrink-0" title="Tide of the Iron Dragon 사운드 스튜디오">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 3. AUGMENTED REALITY -->
+      <div class="flex items-center space-x-3 justify-end group">
+        <div class="text-right leading-tight pointer-events-none select-none drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]">
+          <span class="block text-teal-ethereal group-hover:text-white text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">AUGMENTED</span>
+          <span class="block text-teal-ethereal group-hover:text-white text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">REALITY</span>
+        </div>
+        <button onclick="launchImmersiveAction('ar')" class="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#0e272a] via-[#163a3d] to-[#0e272a] hover:from-teal-ethereal/30 hover:to-gold-antique/30 border border-teal-ethereal/70 hover:border-teal-ethereal text-teal-ethereal shadow-teal-glow backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer shrink-0" title="WebAR 6대 유물 공간 갤러리">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 4. 360 VIRTUAL REALITY -->
+      <div class="flex items-center space-x-3 justify-end group">
+        <div class="text-right leading-tight pointer-events-none select-none drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]">
+          <span class="block text-gold-muted group-hover:text-gold-antique text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">360 VIRTUAL</span>
+          <span class="block text-gold-muted group-hover:text-gold-antique text-[10px] sm:text-[11px] font-mono font-bold tracking-widest uppercase transition-colors">REALITY</span>
+        </div>
+        <button onclick="launchImmersiveAction('vr')" class="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-charcoal/90 hover:bg-gold-antique/20 border border-gold-antique/50 hover:border-gold-antique text-gold-muted shadow-gold-glow backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer shrink-0" title="360° VR 한산도 야간 해전 갑판 체험">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN 60:40 SPLIT GRID -->
+    <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-2">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch min-h-[550px]">
+
+        <!-- LEFT REGION: 60% Interactive 3D Showcase Canvas (col-span-7) -->
+        <div id="viewerWrapper" class="lg:col-span-7 relative rounded-2xl glass-panel-clear p-2.5 flex flex-col justify-between overflow-hidden shadow-2xl border border-gold-antique/25 group">
+
+          <!-- Atmospheric Radial Backlight (Matching MetaDwipa's Perahu Purba Viewport) -->
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(30,45,58,0.65)_0%,rgba(13,17,23,0.92)_78%)] pointer-events-none z-0"></div>
+
+          <div class="w-full h-[390px] sm:h-[460px] lg:h-[510px] relative flex items-center justify-center z-10 overflow-hidden">
+
+            <!-- Dynamic Floating Golden & Teal Aura Sparks Canvas -->
+            <canvas id="relicAuraCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
+
+            <!-- LAYER A (METHOD 2): AI 3D SCULPTED DIORAMA TURNTABLE STAGE -->
+            <div id="diorama3DStage" class="hidden diorama-perspective-stage relative z-10 w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none">
+              <!-- Ambient Pedestal Floor Glow -->
+              <div class="
+                absolute bottom-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-16 rounded-full
+                bg-gradient-to-r from-gold-antique/15 via-teal-ethereal/20 to-gold-antique/15
+                blur-2xl pointer-events-none
+              "></div>
+
+              <!-- 3D Gimbal Wrapper for Sculpted Diorama Image -->
+              <div id="dioramaGimbalCard" class="diorama-card-3d relative flex items-center justify-center w-[88%] h-[88%] max-w-[540px] max-h-[460px]">
+                <img
+                  id="activeDioramaImg"
+                  src="assets/diorama-node0.png"
+                  alt="3D Sculpted Relic Diorama"
+                  class="diorama-render-img w-full h-full object-contain pointer-events-none select-none transition-opacity duration-300"
+                />
+                <!-- Dynamic Specular Light Sheen Overlay reacting to mouse drag -->
+                <div id="dioramaLightOverlay" class="absolute inset-0 pointer-events-none rounded-full opacity-35 mix-blend-screen transition-all duration-75" style="background: radial-gradient(circle at 50% 40%, rgba(212,175,55,0.28), transparent 60%);"></div>
+              </div>
+            </div>
+
+            <!-- LAYER B (METHOD 1 DEFAULT): GOOGLE <model-viewer> FOR REAL .GLB FILES (bbd6136208bf4951abfdfa1c8d4fa103.glb & cheonja_chongtong_gun.glb) -->
+            <model-viewer
+              id="relicViewer"
+              src="bbd6136208bf4951abfdfa1c8d4fa103.glb"
+              poster="assets/diorama-node0.png"
+              alt="IRON DRAGON 3D .GLB Interactive Relic Showcase"
+              auto-rotate
+              rotation-per-second="25deg"
+              camera-controls
+              shadow-intensity="1.5"
+              shadow-softness="0.8"
+              exposure="1.25"
+              touch-action="pan-y"
+              ar
+              ar-modes="webxr scene-viewer quick-look"
+              style="background: transparent; --poster-color: transparent;"
+              class="w-full h-full cursor-grab active:cursor-grabbing relative z-10">
+            </model-viewer>
+
+            <!-- LAYER C: THREE.JS 3D STRUCTURAL ANATOMY & EXPLODED VIEW CANVAS -->
+            <div id="realm3DCanvasContainer" class="hidden w-full h-full cursor-grab active:cursor-grabbing relative z-10"></div>
+
+            <!-- TOP-LEFT DIRECT 3D .GLB MODEL SELECTOR (거북선 vs 천자총통) -->
+            <div class="absolute top-3 left-3 z-30 flex flex-wrap items-center gap-1.5 pointer-events-auto">
+              <button onclick="switchDirectGlbModel('geobukseon')" id="directGlbBtn-geobukseon" class="px-3 py-1 rounded-full bg-teal-ethereal text-obsidian border border-teal-ethereal text-[10px] font-mono font-bold transition-all shadow-teal-glow flex items-center space-x-1 cursor-pointer" title="거북선 3D 모델 (bbd6136208bf4951abfdfa1c8d4fa103.glb) 바로 보기">
+                <span>🐉 거북선 3D (.GLB)</span>
+              </button>
+              <button onclick="switchDirectGlbModel('cheonja')" id="directGlbBtn-cheonja" class="px-3 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="천자총통 3D 모델 (cheonja_chongtong_gun.glb) 바로 보기">
+                <span>💣 천자총통 3D (.GLB)</span>
+              </button>
+            </div>
+
+            <!-- TOP-RIGHT .GLB UPLOAD & MODE SWITCHER PILLS -->
+            <div class="absolute top-3 right-3 z-30 flex flex-wrap items-center justify-end gap-1.5 pointer-events-auto">
+              <button onclick="setRenderMode('glb')" id="modeBtnGlb" class="px-2.5 py-1 rounded-full bg-gold-antique text-obsidian border border-gold-antique text-[10px] font-mono font-bold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="실제 .GLB 3D 모델 (거북선 & 천자총통) 360도 뷰어">
+                <span>🧊 실물 .GLB 3D</span>
+              </button>
+              <button onclick="setRenderMode('diorama')" id="modeBtnDiorama" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-gold-antique text-gold-muted border border-gold-antique/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="AI 3D 조각 디오라마 아트워크 턴테이블 뷰">
+                <span>🎨 디오라마 뷰</span>
+              </button>
+              <button onclick="setRenderMode('anatomy')" id="anatomyModeBtn" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/40 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="WebGL 3D 선체 해부(X-Ray / 3층 분리 / 화포 발사) 시뮬레이션">
+                <span>⚙ 3D 구조 해부</span>
+              </button>
+              <button onclick="triggerGlbUpload()" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:bg-teal-ethereal hover:text-obsidian text-slateCustom border border-white/20 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="내 PC의 다른 .GLB 3D 모델 파일을 추가로 불러옵니다">
+                <span>📂 파일 열기</span>
+              </button>
+            </div>
+
+            <!-- 3D CANVAS RELIC TITLE HUD (Bottom-Left — Identical to MetaDwipa HUD) -->
+            <div class="absolute bottom-4 left-4 z-30 pointer-events-none select-none max-w-[290px]">
+              <div class="flex flex-col space-y-0.5 bg-obsidian/80 backdrop-blur-md px-4 py-3 rounded-xl border border-gold-antique/35 shadow-lg">
+                <span id="activeModelNode" class="text-[11px] sm:text-xs font-mono font-bold tracking-widest text-teal-ethereal uppercase">
+                  NODE 01
+                </span>
+                <span id="activeModelTitle" class="font-display font-black text-base sm:text-lg lg:text-xl text-offwhite tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(212,175,55,0.8)] leading-tight">
+                  용두 (龍頭)
+                </span>
+                <span id="activeModelSubtitle" class="font-sans text-xs sm:text-[13px] font-semibold text-gold-muted tracking-wide uppercase truncate">
+                  유황 연막과 함수포
+                </span>
+              </div>
+            </div>
+
+            <!-- 3D CANVAS STATUS & CONTROLS (Bottom-Right — Identical to MetaDwipa HUD) -->
+            <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end space-y-2 pointer-events-auto">
+              <!-- Mode Badge (Click to cycle: AI 3D Diorama / 3D Anatomy / Cloud GLB) -->
+              <button onclick="cycleRenderMode()" id="modelSourceStatusBadge" class="px-3.5 py-1.5 rounded-full bg-charcoal/90 backdrop-blur-md hover:border-gold-antique text-gold-muted text-[10px] sm:text-[11px] font-mono border border-gold-antique/45 flex items-center space-x-1.5 shadow-md cursor-pointer transition-all" title="클릭하여 렌더링 모드 전환 (AI 3D 디오라마 / 3D 구조 해부 / .GLB 뷰어)">
+                <span class="w-1.5 h-1.5 rounded-full bg-teal-ethereal animate-pulse"></span>
+                <span id="modelSourceModeLabel">Mode: AI 3D 디오라마</span>
+              </button>
+
+              <!-- Anatomy-only controls (Shown when in 3D Anatomy mode) -->
+              <div id="anatomySubControls" class="hidden flex-col items-end space-y-1.5">
+                <button onclick="triggerActionFire()" class="px-3 py-1 rounded-full bg-gradient-to-r from-volcanic-ember to-gold-antique text-obsidian font-mono font-bold text-[10px] shadow-volcanic-glow cursor-pointer">
+                  🔥 <span id="fireActionLabel">화포·용두 화염 발사</span>
+                </button>
+                <button onclick="toggleExplodeMode()" class="px-3 py-1 rounded-full bg-charcoal/90 text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono cursor-pointer">
+                  <span id="explodeModeLabel">구조 분해(Explode): 꺼짐</span>
+                </button>
+                <button onclick="toggleXRayMode()" class="px-3 py-1 rounded-full bg-charcoal/90 text-gold-muted border border-gold-antique/45 text-[10px] font-mono cursor-pointer">
+                  <span id="xrayModeLabel">내부 투시(X-Ray): 꺼짐</span>
+                </button>
+              </div>
+
+              <!-- Auto Spin Button -->
+              <button id="quickInspectBtn" onclick="toggleInspect360()" class="px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md hover:bg-gold-antique hover:text-obsidian text-gold-antique border border-gold-antique/50 text-[10px] sm:text-[11px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span id="autoSpinLabel">Auto Spin: ON</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Bottom Navigation Status Info -->
+          <div class="relative z-20 flex items-center justify-between px-3 py-2 bg-charcoal/60 backdrop-blur-md rounded-xl border border-white/5 text-[11px] text-slateCustom">
+            <div class="flex items-center space-x-3">
+              <span class="flex items-center space-x-1">
+                <kbd class="px-1.5 py-0.5 rounded bg-obsidian border border-slateCustom/40 text-[9px] font-mono text-offwhite">Drag</kbd>
+                <span id="hudRotateHint">3D 회전</span>
+              </span>
+              <span class="flex items-center space-x-1 hidden sm:flex">
+                <kbd class="px-1.5 py-0.5 rounded bg-obsidian border border-slateCustom/40 text-[9px] font-mono text-offwhite">Shift+Drag</kbd>
+                <span id="hudPanHint">화면 이동</span>
+              </span>
+              <span class="flex items-center space-x-1 hidden sm:flex">
+                <kbd class="px-1.5 py-0.5 rounded bg-obsidian border border-slateCustom/40 text-[9px] font-mono text-offwhite">Scroll</kbd>
+                <span id="hudZoomHint">확대/축소</span>
+              </span>
+            </div>
+            <div class="flex items-center space-x-1.5 text-teal-ethereal font-mono text-[10px] tracking-widest">
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-ethereal animate-pulse"></span>
+              <span id="relicSyncStatus">STATUS: SIAP / 준비 완료</span>
+            </div>
+          </div>
+
+          <!-- MOBILE IMMERSIVE BUTTONS ROW -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:hidden gap-2 pt-3 pb-1 mt-2 border-t border-gold-antique/20">
+            <button onclick="launchImmersiveAction('video')" class="flex flex-col items-center justify-center py-2 px-1.5 rounded-xl bg-charcoal/85 border border-gold-antique/40 text-gold-muted text-[10px] font-mono font-bold">
+              <span>🎬 CINEMATIC</span><span>BATTLE FILM</span>
+            </button>
+            <button onclick="launchImmersiveAction('audio')" class="flex flex-col items-center justify-center py-2 px-1.5 rounded-xl bg-charcoal/85 border border-teal-ethereal/50 text-teal-ethereal text-[10px] font-mono font-bold">
+              <span>🎵 AUDIO</span><span>SYMPHONY</span>
+            </button>
+            <button onclick="launchImmersiveAction('ar')" class="flex flex-col items-center justify-center py-2 px-1.5 rounded-xl bg-charcoal/85 border border-teal-ethereal/50 text-teal-ethereal text-[10px] font-mono font-bold">
+              <span>📦 AUGMENTED</span><span>REALITY</span>
+            </button>
+            <button onclick="launchImmersiveAction('vr')" class="flex flex-col items-center justify-center py-2 px-1.5 rounded-xl bg-charcoal/85 border border-gold-antique/40 text-gold-muted text-[10px] font-mono font-bold">
+              <span>🥽 360 VIRTUAL</span><span>REALITY</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- RIGHT REGION: 40% Narrative, Specs & Lore Panel (col-span-5) -->
+        <div class="lg:col-span-5 flex flex-col justify-between">
+          <div class="glass-panel p-5 sm:p-6 rounded-2xl flex-1 flex flex-col justify-between relative overflow-hidden border border-gold-antique/30 shadow-2xl">
+            <div class="absolute -right-20 -top-20 w-48 h-48 bg-gold-antique/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div>
+              <!-- Taxonomy Badges -->
+              <div class="flex flex-wrap gap-1.5 mb-2" id="taxonomyContainer"></div>
+
+              <!-- Main Titles -->
+              <div class="space-y-1 mb-2">
+                <span id="chapterNumberLabel" class="text-xs font-mono font-bold tracking-widest text-teal-ethereal uppercase">
+                  EPISODE 01 // 심리전과 화학전의 결정체
+                </span>
+                <h2 id="characterTitle" class="text-xl sm:text-2xl lg:text-[1.6rem] font-display font-black text-offwhite leading-tight tracking-wide">
+                  용두 (龍頭)
+                </h2>
+                <p id="characterSubtitle" class="text-xs sm:text-sm font-editorial italic text-gold-muted">
+                  "유황 연막과 뇌성의 함수를 지배하는 신수"
+                </p>
+              </div>
+
+              <!-- Poetic Quote Box -->
+              <div class="relative pl-3.5 border-l-2 border-gold-antique/70 my-2.5 bg-gradient-to-r from-gold-antique/10 to-transparent py-2 pr-2.5 rounded-r-xl">
+                <p id="poeticQuote" class="text-xs sm:text-[13px] font-editorial text-offwhite/95 leading-relaxed tracking-wide italic">
+                  "선수의 용 아가리에서 유황과 염초를 태운 푸른 독연(毒煙)이 뿜어져 나오니, 적선들은 안개에 갇혀 귀신 함대를 마주한 듯 전의를 상실했다."
+                </p>
+              </div>
+
+              <!-- Scrollable Historical & Engineering Synopsis -->
+              <div class="relative mb-2.5">
+                <div class="flex items-center justify-between mb-1 px-1">
+                  <span class="text-[10px] font-mono text-teal-ethereal uppercase tracking-wider flex items-center space-x-1.5">
+                    <span>📜</span>
+                    <span id="synopsisHeaderLabel">역사·공학적 고증 시놉시스</span>
+                    <span id="synopsisScrollHint" class="text-[9px] text-slateCustom">(마우스 스크롤 가능)</span>
+                  </span>
+                </div>
+                <div id="storySynopsisContainer" class="p-3 rounded-xl bg-obsidian/55 border border-gold-antique/20 text-xs sm:text-[13px] text-slateCustom leading-relaxed font-sans max-h-[125px] overflow-y-auto">
+                  <p id="loreParagraph"></p>
+                </div>
+              </div>
+
+              <!-- Technical Specifications Telemetry Grid -->
+              <div id="specsGridContainer" class="space-y-1.5 mb-3"></div>
+            </div>
+
+            <!-- Action Controls Group: AI TTS, Relic Card Download, & Prismatic Monograph CTA -->
+            <div class="space-y-2 pt-2 border-t border-white/10">
+              <div class="flex flex-col sm:flex-row items-center gap-2">
+                <!-- TTS Narrator Button -->
+                <button id="ttsNarratorBtn" onclick="toggleTtsNarration()" class="w-full sm:w-auto flex-1 flex items-center justify-center space-x-2 px-3.5 py-2 rounded-xl bg-charcoal/80 hover:bg-gold-antique/20 text-offwhite border border-gold-antique/40 hover:border-gold-antique transition-all duration-300 text-xs font-semibold group shadow-md active:scale-95 cursor-pointer">
+                  <span class="text-teal-ethereal group-hover:scale-110 transition-transform">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    </svg>
+                  </span>
+                  <span id="ttsLabel">AI 도슨트 내레이션 듣기</span>
+                </button>
+
+                <!-- Relic Poster Trigger -->
+                <button onclick="openModal('relicModal')" class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-gradient-to-r from-gold-antique/20 to-teal-ethereal/20 hover:from-gold-antique/30 hover:to-teal-ethereal/30 text-gold-muted border border-gold-antique/50 hover:border-gold-antique transition-all duration-300 text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-gold-glow active:scale-95 cursor-pointer">
+                  <svg class="w-4 h-4 text-gold-antique" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                  <span id="relicBtnLabel">유물 포스터 카드 다운로드</span>
+                </button>
+              </div>
+
+              <!-- CTA BUTTON TO VIEW 3: PRISMATIC MONOGRAPH -->
+              <button onclick="switchRealm('science')" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#0e272a] via-[#163a3d] to-[#0e272a] hover:from-[#13383d] hover:to-[#13383d] border border-teal-ethereal/80 text-teal-ethereal hover:text-white transition-all duration-300 text-xs font-mono tracking-wider uppercase flex items-center justify-center space-x-2 shadow-teal-glow group active:scale-95 cursor-pointer">
+                <span class="w-2 h-2 rounded-full bg-teal-ethereal animate-pulse"></span>
+                <span id="scienceBtnText">다학제 과학·전술 심층 고증 아카이브</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HERO CARDS SECTION: 6-Node Carousel (4 Visible on Desktop with Left/Right Arrows) -->
+    <div class="w-full px-3 sm:px-6 lg:px-8 mt-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <span class="text-[11px] font-mono tracking-widest text-gold-muted/90 uppercase flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-gold-antique animate-pulse"></span>
+            <span id="dockTimelineTitle">거북선 6대 핵심 유물 및 전술 노드 선택</span>
+          </span>
+          <span class="text-[10px] font-mono text-teal-ethereal px-1" id="dockInstruction">EPISODE [1 - 6]</span>
+        </div>
+
+        <div class="relative flex items-center">
+          <!-- Prev Arrow -->
+          <button onclick="prevCardsCarousel()" class="absolute -left-2 sm:-left-4 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-charcoal/95 border border-gold-antique/50 text-gold-antique hover:bg-gold-antique hover:text-obsidian flex items-center justify-center transition-all shadow-lg active:scale-95 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+
+          <!-- Carousel Track -->
+          <div class="w-full overflow-hidden px-1 py-1">
+            <div id="carouselTrack" class="flex transition-transform duration-500 ease-out gap-2.5 sm:gap-3 pl-1">
+              <!-- Card 0 -->
+              <button onclick="selectChapter(0)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-gold-antique/25 border-gold-antique shadow-gold-glow flex items-center space-x-2.5 cursor-pointer ml-1">
+                <img id="nodeThumb-0" src="assets/diorama-node0.png" alt="Node 01" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-teal-ethereal font-bold block">NODE 01</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-0">용두 (龍頭)</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-0">유황 연막과 함수포</div>
+                </div>
+              </button>
+
+              <!-- Card 1 -->
+              <button onclick="selectChapter(1)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-charcoal/75 border-white/10 hover:border-gold-antique/50 flex items-center space-x-2.5 cursor-pointer">
+                <img id="nodeThumb-1" src="assets/diorama-node1.png" alt="Node 02" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-slateCustom font-bold block">NODE 02</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-1">개판과 철첨</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-1">육각 철갑 방어 지붕</div>
+                </div>
+              </button>
+
+              <!-- Card 2 -->
+              <button onclick="selectChapter(2)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-charcoal/75 border-white/10 hover:border-gold-antique/50 flex items-center space-x-2.5 cursor-pointer">
+                <img id="nodeThumb-2" src="assets/diorama-node2.png" alt="Node 03" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-slateCustom font-bold block">NODE 03</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-2">천자총통·대장군전</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-2">조선 수군 중포 화력</div>
+                </div>
+              </button>
+
+              <!-- Card 3 -->
+              <button onclick="selectChapter(3)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-charcoal/75 border-white/10 hover:border-gold-antique/50 flex items-center space-x-2.5 cursor-pointer">
+                <img id="nodeThumb-3" src="assets/diorama-node3.png" alt="Node 04" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-slateCustom font-bold block">NODE 04</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-3">거북선 3층 본체</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-3">3층 복합 구조 철갑선</div>
+                </div>
+              </button>
+
+              <!-- Card 4 -->
+              <button onclick="selectChapter(4)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-charcoal/75 border-white/10 hover:border-gold-antique/50 flex items-center space-x-2.5 cursor-pointer">
+                <img id="nodeThumb-4" src="assets/diorama-node4.png" alt="Node 05" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-slateCustom font-bold block">NODE 05</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-4">충무공 장검·난중일기</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-4">국보 지휘검과 친필 실록</div>
+                </div>
+              </button>
+
+              <!-- Card 5 -->
+              <button onclick="selectChapter(5)" class="timeline-node group relative flex-[0_0_92.5%] sm:flex-[0_0_calc(46.25%-6px)] lg:flex-[0_0_calc(23.125%-9px)] text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-300 bg-charcoal/75 border-white/10 hover:border-gold-antique/50 flex items-center space-x-2.5 cursor-pointer">
+                <img id="nodeThumb-5" src="assets/diorama-node5.png" alt="Node 06" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-gold-antique/40 shrink-0 group-hover:scale-105 transition-transform bg-obsidian" />
+                <div class="flex-1 min-w-0">
+                  <span class="node-badge text-[9px] font-mono text-slateCustom font-bold block">NODE 06</span>
+                  <div class="font-display text-xs sm:text-[13px] font-bold text-offwhite truncate" id="nodeTitle-5">한산도 학익진</div>
+                  <div class="text-[10px] text-gold-muted/90 truncate" id="nodeSubtitle-5">해상 반원 포위 섬멸진</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Next Arrow -->
+          <button onclick="nextCardsCarousel()" class="absolute -right-2 sm:-right-4 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-charcoal/95 border border-gold-antique/50 text-gold-antique hover:bg-gold-antique hover:text-obsidian flex items-center justify-center transition-all shadow-lg active:scale-95 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================================
+       VIEW 03: THE PRISMATIC PERSPECTIVES (다학제 심층 고증 아카이브)
+       Benchmarked from metadwipa.id/kajian-tangkuban-parahu.html
+       ========================================================================= -->
+  <section id="view-science" class="hidden relative z-10 pt-20 sm:pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow">
+
+    <!-- Editorial Header -->
+    <header class="text-center max-w-4xl mx-auto mb-6 sm:mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-gold-antique/10 border border-gold-antique/30 text-[10px] font-mono text-gold-antique uppercase tracking-widest mb-2">
+        <span>ANTHOLOGY MONOGRAPH // JOSEON NAVAL ENGINEERING & TACTICS</span>
+      </div>
+      <h1 id="monographMainHeader" class="font-editorial text-2xl sm:text-4xl md:text-5xl font-bold text-pualam tracking-tight leading-tight mb-2.5">
+        거북선을 해부하다: 신화에서 조선 해양공학의 정점으로
+      </h1>
+      <p id="monographSubHeader" class="font-body-text text-xs sm:text-base text-slateMuted max-w-3xl mx-auto leading-relaxed px-2">
+        임진왜란 해전의 판도를 바꾼 돌격선 거북선의 선체 역학, 화약 병기학, 고문헌 실증, 그리고 한산도·명량 해협의 유체역학적 전술을 통합 재구성한 다학제 모노그래프.
+      </p>
+    </header>
+
+    <!-- 4 Segmented Perspective Tabs -->
+    <nav class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-6 sm:mb-8">
+      <button onclick="switchPerspective(0)" id="tabBtn-0" class="perspective-tab active-tab flex items-center justify-center space-x-2 py-3 px-3 rounded-xl border text-xs sm:text-[13px] font-mono font-semibold transition-all duration-300 cursor-pointer">
+        <span>⚓</span>
+        <span id="tabLabel-0">1. 조선 해양공학 (선체역학)</span>
+      </button>
+      <button onclick="switchPerspective(1)" id="tabBtn-1" class="perspective-tab flex items-center justify-center space-x-2 py-3 px-3 rounded-xl border text-xs sm:text-[13px] font-mono font-semibold transition-all duration-300 cursor-pointer">
+        <span>🔥</span>
+        <span id="tabLabel-1">2. 화약·화포 병기학</span>
+      </button>
+      <button onclick="switchPerspective(2)" id="tabBtn-2" class="perspective-tab flex items-center justify-center space-x-2 py-3 px-3 rounded-xl border text-xs sm:text-[13px] font-mono font-semibold transition-all duration-300 cursor-pointer">
+        <span>📜</span>
+        <span id="tabLabel-2">3. 문헌·필사본 고증</span>
+      </button>
+      <button onclick="switchPerspective(3)" id="tabBtn-3" class="perspective-tab flex items-center justify-center space-x-2 py-3 px-3 rounded-xl border text-xs sm:text-[13px] font-mono font-semibold transition-all duration-300 cursor-pointer">
+        <span>🌊</span>
+        <span id="tabLabel-3">4. 해양지형과 전술학</span>
+      </button>
+    </nav>
+
+    <!-- Split Grid 7:5 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+
+      <!-- Left Narrative Card (col-span-7) -->
+      <div class="lg:col-span-7 flex flex-col justify-between glass-card rounded-2xl p-6 sm:p-7 relative overflow-hidden">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="text-xs font-mono font-bold tracking-widest text-gold-antique uppercase flex items-center space-x-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-gold-antique"></span>
+              <span id="perspectiveBadgeText">01 / Naval Architecture & Structural Mechanics</span>
+            </span>
+            <span id="perspectiveMeta" class="text-[10px] sm:text-[11px] font-mono text-slateMuted border border-borderCustom px-2.5 py-0.5 rounded bg-container/50">
+              HULL CLASS: PANOKSEON-DERIVED 3-DECK ASSAULT IRONCLAD
+            </span>
+          </div>
+
+          <!-- Manuscript Callout Box -->
+          <div class="relative glass-card-subtle p-5 sm:p-6 rounded-2xl border-l-4 border-gold-antique mb-5 shadow-lg">
+            <p id="manuscriptQuote" class="font-editorial text-base sm:text-lg italic text-pualam leading-relaxed tracking-wide text-center"></p>
+            <div class="mt-2.5 text-center text-xs font-mono text-gold-muted" id="manuscriptSource"></div>
+          </div>
+
+          <!-- Perspective Title & Analytical Body -->
+          <h2 id="perspectiveTitle" class="font-editorial text-xl sm:text-2xl font-bold text-pualam tracking-tight mb-2.5"></h2>
+          <p id="narrativeBody" class="font-body-text text-sm sm:text-base text-slateMuted leading-relaxed mb-5"></p>
+
+          <!-- 3 Micro Analysis Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-xl glass-card-subtle border border-borderCustom hover:border-gold-antique/60 transition-all">
+              <div class="text-xs font-mono text-gold-antique font-bold mb-1" id="pointTag-1"></div>
+              <h4 id="pointTitle-1" class="font-sans font-semibold text-xs text-pualam mb-1"></h4>
+              <p id="pointDesc-1" class="font-body-text text-xs text-slateMuted leading-normal"></p>
+            </div>
+            <div class="p-3.5 rounded-xl glass-card-subtle border border-borderCustom hover:border-teal-ethereal/60 transition-all">
+              <div class="text-xs font-mono text-teal-ethereal font-bold mb-1" id="pointTag-2"></div>
+              <h4 id="pointTitle-2" class="font-sans font-semibold text-xs text-pualam mb-1"></h4>
+              <p id="pointDesc-2" class="font-body-text text-xs text-slateMuted leading-normal"></p>
+            </div>
+            <div class="p-3.5 rounded-xl glass-card-subtle border border-borderCustom hover:border-volcanic-ember/60 transition-all">
+              <div class="text-xs font-mono text-volcanic-ember font-bold mb-1" id="pointTag-3"></div>
+              <h4 id="pointTitle-3" class="font-sans font-semibold text-xs text-pualam mb-1"></h4>
+              <p id="pointDesc-3" class="font-body-text text-xs text-slateMuted leading-normal"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3.5 border-t border-borderCustom flex flex-wrap items-center justify-between text-[11px] font-mono text-slateMuted gap-2">
+          <div class="flex items-center space-x-2">
+            <span class="text-teal-ethereal">✔</span>
+            <span id="verifiedLabel">조선해양유산학회 & 디지털 트윈 전술연구소 검증 완료</span>
+          </div>
+          <span>MONOGRAPH DOI: 10.1080/IRONDRAGON.GBS1592</span>
+        </div>
+      </div>
+
+      <!-- Right 3D Bathymetry & Tactical Contour Viewport (col-span-5) -->
+      <div class="lg:col-span-5 flex flex-col justify-between space-y-3.5">
+
+        <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden border border-borderCustom shadow-2xl">
+          <div class="flex items-center justify-between mb-2 z-10">
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-volcanic-ember animate-pulse"></span>
+              <span class="text-xs font-mono font-bold text-pualam tracking-wider" id="topoHudTitle">3D 해협 수심 & 학익진 전술 지형도</span>
+            </div>
+            <div class="flex items-center space-x-1 text-[10px] font-mono text-slateMuted">
+              <span class="px-1.5 py-0.5 rounded bg-container border border-borderCustom text-gold-antique">LAT 34.782° N</span>
+              <span class="px-1.5 py-0.5 rounded bg-container border border-borderCustom text-teal-ethereal">LON 128.475° E</span>
+              <button onclick="reset3DCamera()" class="p-1 hover:text-pualam text-slateMuted transition-colors cursor-pointer" title="3D 카메라 초기화">↺</button>
+            </div>
+          </div>
+
+          <div id="topo3dContainer" class="relative w-full h-[290px] sm:h-[310px] rounded-xl bg-obsidian border border-borderCustom/80 overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-0 bg-[radial-gradient(#30363D_1px,transparent_1px)] [background-size:16px_16px] opacity-35 pointer-events-none"></div>
+            <div class="absolute inset-0 scanline-effect pointer-events-none"></div>
+
+            <canvas id="topo3dCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+            <div id="pinsOverlay" class="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+              <div id="pin-hansan" class="topo-pin" onclick="inspectHotspot('hansan')">
+                <div class="flex items-center space-x-1 bg-obsidian/90 border border-gold-antique/80 px-2 py-0.5 rounded shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-gold-antique animate-ping"></span>
+                  <span class="text-[9px] font-mono text-gold-antique font-bold">한산도 본영</span>
+                </div>
+              </div>
+              <div id="pin-gyeonnae" class="topo-pin" onclick="inspectHotspot('gyeonnae')">
+                <div class="flex items-center space-x-1 bg-obsidian/90 border border-volcanic-ember/80 px-2 py-0.5 rounded shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-volcanic-ember animate-pulse"></span>
+                  <span class="text-[9px] font-mono text-volcanic-ember font-bold">견내량 협수로</span>
+                </div>
+              </div>
+              <div id="pin-hagikjin" class="topo-pin" onclick="inspectHotspot('hagikjin')">
+                <div class="flex items-center space-x-1 bg-obsidian/90 border border-teal-ethereal/80 px-2 py-0.5 rounded shadow-lg">
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-ethereal"></span>
+                  <span class="text-[9px] font-mono text-teal-ethereal font-bold">학익진 포위망</span>
+                </div>
+              </div>
+              <div id="pin-geobuk" class="topo-pin" onclick="inspectHotspot('geobuk')">
+                <div class="flex items-center space-x-1 bg-obsidian/95 border border-gold-antique px-2 py-0.5 rounded shadow-lg">
+                  <span class="text-[9px] font-mono text-gold-muted font-bold">⚡ 거북선 돌격축</span>
+                </div>
+              </div>
+              <div id="pin-uldolmok" class="topo-pin" onclick="inspectHotspot('uldolmok')">
+                <div class="flex items-center space-x-1 bg-obsidian/95 border border-red-500/80 px-2 py-0.5 rounded shadow-lg">
+                  <span class="text-[9px] font-mono text-red-400 font-bold">해협 급류 11.5kt</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="absolute top-2 left-2 z-20 flex items-center space-x-2 text-[9px] font-mono text-slateMuted bg-obsidian/80 px-2 py-0.5 rounded border border-borderCustom/60 pointer-events-none">
+              <span>↻ Drag: 3D 지형 회전</span>
+              <span>•</span>
+              <span>핀 클릭: 전술 상세</span>
+            </div>
+
+            <div class="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-obsidian/85 border border-borderCustom text-[10px] font-mono text-slateMuted flex items-center space-x-1.5 z-20">
+              <span id="topoLayerLabel">Mode: 해협 수심 등고선 & 학익진 탄도 벡터</span>
+            </div>
+
+            <div id="hotspotDetails" class="absolute top-2 right-2 max-w-[235px] p-3 rounded-xl bg-container/95 border border-gold-antique/70 text-xs shadow-2xl hidden backdrop-blur-md z-30">
+              <div class="flex items-center justify-between mb-1">
+                <span id="hsTitle" class="font-mono font-bold text-[11px] text-gold-antique">한산도 본영</span>
+                <button onclick="closeHotspot()" class="text-slateMuted hover:text-pualam text-xs px-1 cursor-pointer">✕</button>
+              </div>
+              <p id="hsDesc" class="font-body-text text-xs text-slateMuted leading-relaxed"></p>
+            </div>
+          </div>
+
+          <div class="mt-2.5 p-2.5 rounded-xl bg-obsidian/75 border border-borderCustom flex items-center justify-between">
+            <span class="text-[11px] font-mono text-slateMuted" id="perspectiveLabelSwitch">관점 전환:</span>
+            <div class="flex items-center space-x-2 text-[11px] font-mono">
+              <span id="labelModeMitos" class="text-slateMuted">신화적 표상</span>
+              <button onclick="toggleVisualMode()" class="w-12 h-6 rounded-full bg-container border border-borderCustom p-0.5 flex items-center transition-all cursor-pointer relative">
+                <div id="modeToggleThumb" class="w-5 h-5 rounded-full bg-volcanic-ember transition-transform duration-300 transform translate-x-6"></div>
+              </button>
+              <span id="labelModeGeologi" class="text-volcanic-ember font-semibold">해양공학·전술 데이터</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Micro Audio Player Widget -->
+        <div class="glass-card rounded-2xl p-3.5 border border-borderCustom flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-bold text-pualam" id="audioSectionTitle">난중일기 구술 사료 & 전장의 북소리</span>
+            <span id="audioTimer" class="text-[11px] font-mono text-slateMuted font-semibold">00:00 / 00:00</span>
+          </div>
+          <div class="flex items-center space-x-3 p-2 rounded-xl bg-obsidian/60 border border-borderCustom/70">
+            <button onclick="toggleAudio()" class="w-8 h-8 rounded-full bg-cyan-ethereal/20 hover:bg-cyan-ethereal/30 border border-cyan-ethereal text-cyan-ethereal flex items-center justify-center transition-all cursor-pointer shadow-cyan-glow shrink-0">
+              ▶
+            </button>
+            <div class="flex-1 flex items-center justify-between space-x-1 h-5 px-1.5 overflow-hidden" id="waveContainer">
+              <span class="w-1 h-2 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-4 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-3 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-5 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-2 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-5 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-4 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-3 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-5 bg-borderCustom rounded-full"></span>
+              <span class="w-1 h-2 bg-borderCustom rounded-full"></span>
+            </div>
+            <button onclick="launchImmersiveAction('audio')" class="px-2.5 py-1 rounded bg-charcoal border border-gold-antique/40 text-gold-muted text-[10px] font-mono font-semibold cursor-pointer">
+              스튜디오 열기
+            </button>
+          </div>
+        </div>
+
+        <!-- WebAR Spatial Scan Banner -->
+        <div class="glass-card rounded-2xl p-3.5 border border-cyan-ethereal/40 bg-gradient-to-r from-container via-cyan-ethereal/5 to-container flex items-center justify-between gap-3 shadow-cyan-glow">
+          <div class="space-y-0.5">
+            <span class="text-[9px] font-mono text-cyan-ethereal tracking-wider uppercase block" id="arBannerPre">해전 지형 공간 인터랙션</span>
+            <h4 class="font-sans font-bold text-xs text-pualam" id="arBannerTitle">WebAR 공간 스캔</h4>
+            <p class="font-body-text text-xs text-slateMuted" id="arBannerDesc">WebXR을 통해 한산도·명량 해협 3D 입체 전술도를 책상 위에 투영합니다.</p>
+          </div>
+          <button onclick="openModal('qrModal')" class="px-3.5 py-2 rounded-xl bg-cyan-ethereal text-obsidian hover:bg-cyan-ethereal/90 font-mono font-bold text-xs transition-all shadow-md shrink-0 cursor-pointer">
+            <span id="arLaunchBtnText">AR 열기</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =========================================================================
+       FOOTER ATTRIBUTION & REALM STATUS BAR
+       ========================================================================= -->
+  <footer class="relative z-30 w-full py-3.5 px-4 sm:px-8 border-t border-white/10 bg-obsidian/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-slateCustom">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-gold-antique"></span>
+        <span class="text-offWhite font-semibold">IRON DRAGON (거북선 1592)</span>
+        <span>— Cyber-Joseon 3D Spatial Showcase (Benchmarked on MetaDwipa.id UX)</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="switchRealm('gate')" class="hover:text-gold-antique transition-colors cursor-pointer">GENESIS GATE</button>
+        <span>•</span>
+        <button onclick="switchRealm('realm')" class="hover:text-teal-ethereal transition-colors cursor-pointer">3D LIVING REALM</button>
+        <span>•</span>
+        <button onclick="switchRealm('science')" class="hover:text-volcanic-ember transition-colors cursor-pointer">PRISMATIC MONOGRAPH</button>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- =========================================================================
+       CINEMATIC PORTAL WARP TRANSITION OVERLAY
+       ========================================================================= -->
+  <div id="cinematicOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-obsidian opacity-0 pointer-events-none transition-all duration-700">
+    <div id="warpRing" class="absolute w-28 h-28 rounded-full border-4 border-ethereal-teal scale-0 transition-transform duration-1000 ease-out shadow-[0_0_120px_rgba(45,212,191,1)]"></div>
+    <div id="dawnFlash" class="absolute inset-0 bg-gradient-to-t from-gold-antique/40 via-ethereal-teal/30 to-obsidian opacity-0 transition-opacity duration-700"></div>
+
+    <div class="relative z-10 text-center px-6">
+      <div class="w-16 h-16 mx-auto mb-4 border-4 border-t-ethereal-teal border-r-gold-antique border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      <h3 id="transitionTitle" class="font-cinzel text-xl sm:text-3xl text-gold-antique font-bold tracking-wider text-glow-gold">
+        Connecting to Living Realm: IRON DRAGON (거북선 1592)...
+      </h3>
+      <p class="mt-2 text-xs sm:text-sm text-ethereal-teal font-mono">
+        [ Initializing 3D Geobukseon Diorama • Tide of the Iron Dragon Audio • Naval Tactical Ledger ]
+      </p>
+      <div class="w-64 max-w-full mx-auto mt-6 bg-mystic rounded-full h-1.5 overflow-hidden border border-ethereal-teal/40">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-ethereal-teal to-gold-antique w-0 transition-all duration-1000 ease-in-out"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       IMMERSIVE MODALS (AUDIO SYMPHONY, RELIC POSTER, AR GALLERY, VIDEO, VR 360)
+       ========================================================================= -->
+
+  <!-- MODAL 0: Dedicated Audio Story & OST Studio (Tide_of_the_Iron_Dragon.mp3) -->
+  <div id="audioStoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative w-full max-w-md rounded-2xl glass-panel p-6 border-2 border-teal-ethereal/70 shadow-teal-glow">
+      <button onclick="closeAudioStoryModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-charcoal border border-teal-ethereal/40 hover:border-teal-ethereal flex items-center justify-center text-slateCustom hover:text-offwhite cursor-pointer">✕</button>
+
+      <div class="text-center mb-4">
+        <span class="px-3 py-1 rounded-full bg-teal-ethereal/15 text-teal-ethereal border border-teal-ethereal/40 text-[10px] font-mono tracking-widest uppercase">
+          ORIGINAL SOUNDTRACK & CHRONICLE
+        </span>
+        <h3 class="font-display text-xl sm:text-2xl font-bold text-offwhite mt-2">
+          Tide of the Iron Dragon
+        </h3>
+        <p class="text-xs text-gold-muted font-mono mt-0.5">철갑신룡의 파도 — 1592 한산도 해전 교향곡</p>
+      </div>
+
+      <div class="relative w-36 h-36 mx-auto my-4 flex items-center justify-center">
+        <div id="storyVinylRing" class="w-full h-full rounded-full border-4 border-dashed border-gold-antique/60 flex items-center justify-center shadow-gold-glow animate-spin-slow">
+          <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-obsidian via-teal-ethereal/25 to-gold-antique/30 border border-teal-ethereal flex items-center justify-center">
+            <span class="font-cinzel text-xs font-bold text-gold-antique">龜船</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="storyWaveformBars" class="flex items-end justify-center gap-1.5 h-8 my-3">
+        <span class="w-1.5 h-3 bg-teal-ethereal rounded-full"></span>
+        <span class="w-1.5 h-6 bg-gold-antique rounded-full"></span>
+        <span class="w-1.5 h-4 bg-teal-ethereal rounded-full"></span>
+        <span class="w-1.5 h-7 bg-gold-antique rounded-full"></span>
+        <span class="w-1.5 h-3 bg-teal-ethereal rounded-full"></span>
+        <span class="w-1.5 h-5 bg-gold-antique rounded-full"></span>
+        <span class="w-1.5 h-7 bg-teal-ethereal rounded-full"></span>
+        <span class="w-1.5 h-4 bg-gold-antique rounded-full"></span>
+      </div>
+
+      <div class="space-y-1">
+        <input type="range" id="storyProgressSlider" min="0" max="100" value="0" oninput="seekStoryAudio(this.value)" class="w-full h-1.5 bg-charcoal rounded-lg cursor-pointer accent-teal-ethereal" />
+        <div class="flex justify-between text-[11px] font-mono text-slateCustom">
+          <span id="storyCurrentTimeText">00:00</span>
+          <span class="text-[10px] text-teal-ethereal/80">ASSET: Tide_of_the_Iron_Dragon.mp3</span>
+          <span id="storyDurationText">--:--</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
+        <button onclick="skipStoryAudio(-10)" class="w-10 h-10 rounded-xl bg-charcoal hover:bg-gold-antique/20 border border-white/10 text-gold-muted flex items-center justify-center cursor-pointer" title="-10s">⏪</button>
+        <button onclick="toggleStoryAudioPlayback()" class="w-14 h-14 rounded-2xl bg-gradient-to-r from-teal-ethereal to-gold-antique text-obsidian flex items-center justify-center shadow-teal-glow hover:scale-105 transition-all cursor-pointer">
+          <svg id="storyPlayIcon" class="w-6 h-6 fill-current ml-0.5 hidden" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="storyPauseIcon" class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button onclick="skipStoryAudio(10)" class="w-10 h-10 rounded-xl bg-charcoal hover:bg-gold-antique/20 border border-white/10 text-gold-muted flex items-center justify-center cursor-pointer" title="+10s">⏩</button>
+      </div>
+
+      <div class="flex items-center justify-between mt-3 pt-2 text-xs text-slateCustom">
+        <div class="flex items-center space-x-2">
+          <span>🔊</span>
+          <input type="range" min="0" max="1" step="0.05" value="0.55" oninput="setStoryAudioVolume(this.value)" class="w-24 h-1 bg-charcoal rounded cursor-pointer accent-teal-ethereal" />
+        </div>
+        <span id="storyPlaybackStatusLabel" class="text-[10px] font-mono text-teal-ethereal uppercase">재생 중 (PLAYING)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: Download Digital Relic Poster Card -->
+  <div id="relicModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/85 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative w-full max-w-md rounded-2xl glass-panel p-5 sm:p-6 border-2 border-gold-antique shadow-gold-glow holo-sheen">
+      <button onclick="closeModal('relicModal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-charcoal border border-gold-antique/40 flex items-center justify-center text-slateCustom hover:text-offwhite cursor-pointer">✕</button>
+
+      <div class="text-center mb-3">
+        <span class="px-3 py-1 rounded-full bg-gold-antique/20 text-gold-muted border border-gold-antique/40 text-[10px] font-mono tracking-widest uppercase">
+          ULTRA-HD DIGITAL RELIC CARD
+        </span>
+        <h3 id="modalRelicName" class="font-display text-xl sm:text-2xl font-bold text-offwhite mt-2">용두 (龍頭)</h3>
+        <p id="modalRelicId" class="text-xs text-teal-ethereal font-mono">RELIC LEDGER: NODE 01</p>
+      </div>
+
+      <div class="relative w-full h-72 rounded-xl bg-charcoal/90 border border-teal-ethereal/40 overflow-hidden flex items-center justify-center shadow-inner-cyber my-3">
+        <img id="modalRelicImage" src="" alt="Relic Poster" class="w-full h-full object-contain" />
+      </div>
+
+      <p id="modalRelicDesc" class="text-xs text-slateCustom text-center leading-relaxed line-clamp-3 px-2 mb-4"></p>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="openActiveSingleRelicAR()" class="flex-1 py-2.5 rounded-xl bg-charcoal hover:bg-teal-ethereal/20 text-offwhite border border-teal-ethereal/60 text-xs font-semibold transition-all cursor-pointer">
+          📦 WebAR QR 코드
+        </button>
+        <a id="modalDownloadLink" href="#" download="IRON_DRAGON_RELIC.png" class="py-2.5 px-5 rounded-xl bg-gradient-to-r from-gold-antique to-teal-ethereal text-obsidian text-xs font-bold shadow-gold-glow cursor-pointer">
+          ⬇ 포스터 저장 (PNG)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Single Relic AR QR Modal -->
+  <div id="singleArModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative w-full max-w-sm rounded-2xl glass-panel p-6 border-2 border-teal-ethereal shadow-teal-glow text-center">
+      <button onclick="closeModal('singleArModal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-charcoal border border-teal-ethereal/40 flex items-center justify-center text-slateCustom hover:text-offwhite cursor-pointer">✕</button>
+      <span id="singleArNodeBadge" class="px-3 py-1 rounded-full bg-teal-ethereal/20 text-teal-ethereal border border-teal-ethereal/40 text-[10px] font-mono uppercase">NODE 01 // AUGMENTED REALITY</span>
+      <h3 id="singleArTitle" class="font-display text-xl font-bold text-offwhite mt-2">용두 (龍頭)</h3>
+      <p id="singleArSubtitle" class="text-xs text-gold-muted font-mono mt-0.5"></p>
+      <div class="p-3 bg-white rounded-2xl shadow-2xl mx-auto w-48 h-48 flex items-center justify-center my-4">
+        <img id="singleArQrImage" src="" alt="AR QR Code" class="w-44 h-44 object-contain" />
+      </div>
+      <p class="text-xs text-slateCustom leading-relaxed mb-4">스마트폰 카메라로 QR 코드를 스캔하여 거북선 3D 유물을 실제 공간에 증강현실(AR)로 소환하세요.</p>
+      <button onclick="closeModal('singleArModal')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-ethereal to-gold-antique text-obsidian text-xs font-mono font-bold cursor-pointer">닫기</button>
+    </div>
+  </div>
+
+  <!-- MODAL 3: WebAR 6-Card Gallery Carousel -->
+  <div id="arModal" class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-300">
+    <button onclick="closeModal('arModal')" class="fixed top-5 right-5 sm:top-7 sm:right-7 w-12 h-12 rounded-full bg-charcoal/90 hover:bg-teal-ethereal text-offwhite hover:text-obsidian border border-teal-ethereal/60 flex items-center justify-center cursor-pointer z-50 text-lg font-bold">✕</button>
+
+    <div class="relative w-full max-w-6xl px-4 sm:px-10 py-6 my-auto flex flex-col items-center">
+      <div class="text-center mb-6 max-w-2xl">
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-teal-ethereal/10 text-teal-ethereal border border-teal-ethereal/40 text-[11px] font-mono uppercase mb-2">
+          <span>✦ SPATIAL WEBAR RELIC LEDGER</span>
+        </div>
+        <h3 class="font-display font-black text-2xl sm:text-3xl text-offwhite">거북선 6대 유물 WebAR 공간 컬렉션</h3>
+        <p class="text-xs sm:text-sm text-slateCustom mt-1">모바일 카메라로 QR 코드를 스캔하거나 카드를 선택해 3D 전술 캔버스에서 즉시 검수하세요.</p>
+      </div>
+
+      <div class="relative w-full flex items-center justify-center">
+        <button onclick="prevArCarousel()" class="absolute -left-2 sm:-left-6 z-30 w-11 h-11 rounded-full bg-charcoal/90 hover:bg-teal-ethereal border border-teal-ethereal/50 text-teal-ethereal hover:text-obsidian flex items-center justify-center cursor-pointer">◀</button>
+        <div class="w-full overflow-hidden py-4 px-1">
+          <div id="arCarouselTrack" class="flex transition-transform duration-500 ease-out gap-6"></div>
+        </div>
+        <button onclick="nextArCarousel()" class="absolute -right-2 sm:-right-6 z-30 w-11 h-11 rounded-full bg-charcoal/90 hover:bg-teal-ethereal border border-teal-ethereal/50 text-teal-ethereal hover:text-obsidian flex items-center justify-center cursor-pointer">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Cinematic Tactical Battle Film (Interactive Canvas + YouTube) -->
+  <div id="videoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/95 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <button onclick="closeVideoModal()" class="fixed top-5 right-5 sm:top-7 sm:right-7 z-50 w-11 h-11 rounded-full bg-charcoal/90 border border-gold-antique/50 flex items-center justify-center text-slateCustom hover:text-white cursor-pointer text-lg">✕</button>
+
+    <div class="relative w-full max-w-5xl p-4 flex flex-col justify-center items-center">
+      <div class="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-gold-antique/50 shadow-2xl bg-black">
+        <canvas id="battleCinematicCanvas" class="w-full h-full block"></canvas>
+        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-obsidian/80 border border-teal-ethereal/40 text-[11px] font-mono text-teal-ethereal flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+          <span>REAL-TIME TACTICAL SIMULATION // BATTLE OF HANSANDO (1592.07.08)</span>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center justify-between w-full px-2 gap-2">
+        <span class="text-xs font-mono text-slateCustom">한산도 대첩 학익진(鶴翼陣) & 거북선 선봉 돌격 전술 시뮬레이션</span>
+        <a href="https://www.youtube.com/results?search_query=%EA%B1%B0%EB%B6%81%EC%84%A0+%ED%95%9C%EC%82%B0%EB%8F%84+%EB%8C%80%EC%B2%A9+3D" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-charcoal/90 hover:bg-red-600/20 text-red-400 border border-red-500/40 text-xs font-mono font-bold transition-all flex items-center space-x-2">
+          <span>▶ YouTube 역사 다큐멘터리 더 보기 ↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: VR 360 Fullscreen Panorama -->
+  <div id="vrModal" class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian opacity-0 pointer-events-none transition-all duration-300">
+    <button onclick="closeVrModal()" class="fixed top-5 right-5 sm:top-7 sm:right-7 z-50 w-11 h-11 rounded-full bg-charcoal/90 border border-teal-ethereal/50 flex items-center justify-center text-slateCustom hover:text-white cursor-pointer text-lg">✕</button>
+
+    <div class="relative w-full h-full">
+      <div id="vrThreeContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 px-5 py-2 rounded-full bg-obsidian/85 backdrop-blur-md border border-teal-ethereal/50 text-xs font-mono text-teal-ethereal flex items-center space-x-3 pointer-events-none">
+        <span>✦ 드래그하여 360° 한산도 야간 해전 갑판 둘러보기</span>
+        <span>•</span>
+        <span>✦ 스크롤로 시야각(FOV) 확대/축소</span>
+      </div>
+      <div id="vrLoadingOverlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-obsidian/90 space-y-3 pointer-events-none">
+        <div class="w-12 h-12 border-4 border-teal-ethereal/20 border-t-teal-ethereal rounded-full animate-spin"></div>
+        <p class="text-xs font-mono text-teal-ethereal">360° 구면 해전 파노라마 렌더링 중...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: Monograph WebAR QR Modal -->
+  <div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative w-full max-w-sm rounded-2xl glass-card p-6 border-2 border-cyan-ethereal/50 shadow-cyan-glow text-center">
+      <button onclick="closeModal('qrModal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-container border border-borderCustom text-slateMuted hover:text-pualam flex items-center justify-center cursor-pointer">✕</button>
+      <span class="px-3 py-1 rounded-full bg-cyan-ethereal/10 text-cyan-ethereal border border-cyan-ethereal/30 text-[10px] font-mono uppercase">WEBAR SPATIAL BATHYMETRY</span>
+      <h3 class="font-editorial text-xl font-bold text-pualam mt-2">한산도·명량 해협 3D 지형 AR</h3>
+      <div class="p-3 bg-white rounded-2xl shadow-2xl mx-auto w-48 h-48 flex items-center justify-center my-4 border-2 border-cyan-ethereal/40">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fmetadwipa.id%2F#science&color=0D1117&bgcolor=FFFFFF" alt="WebAR QR Code" class="w-44 h-44 object-contain" />
+      </div>
+      <p class="text-xs text-slateMuted leading-relaxed mb-4">모바일 기기로 스캔하여 한산도 해협의 수심 등고선과 학익진 전술 배치를 AR 테이블 위에 투영합니다.</p>
+      <button onclick="closeModal('qrModal')" class="w-full py-2.5 rounded-xl bg-cyan-ethereal text-obsidian font-mono font-bold text-xs cursor-pointer">닫기 / Close</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toastNotification" class="fixed top-20 right-4 z-50 glass-panel px-4 py-2.5 rounded-xl border border-gold-antique text-xs text-offwhite shadow-gold-glow flex items-center space-x-2 transform translate-x-32 opacity-0 pointer-events-none transition-all duration-300">
+    <span class="w-2 h-2 rounded-full bg-teal-ethereal animate-ping"></span>
+    <span id="toastMessage">시스템 준비 완료</span>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/three-models.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
