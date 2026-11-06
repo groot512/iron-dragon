@@ -316,11 +316,11 @@
             <circle cx="20" cy="20" r="4" fill="#D4AF37" />
           </svg>
         </div>
-        <div class="relative z-10 flex flex-col">
-          <span class="font-cinzel text-base sm:text-xl md:text-2xl font-black tracking-wider text-gold-antique text-glow-gold leading-none">
+        <div class="relative z-10 flex flex-col min-w-0">
+          <span class="font-cinzel text-sm sm:text-xl md:text-2xl font-black tracking-wider text-gold-antique text-glow-gold leading-none truncate">
             IRON DRAGON
           </span>
-          <span class="text-[9px] sm:text-[10px] font-mono tracking-[0.2em] text-ethereal-teal uppercase">
+          <span class="text-[8px] sm:text-[10px] font-mono tracking-wider sm:tracking-[0.2em] text-ethereal-teal uppercase truncate">
             GEOBUKSEON · 龜船 1592
           </span>
         </div>
@@ -394,9 +394,9 @@
 
     <!-- Mobile Realm Switcher Row -->
     <div class="flex md:hidden items-center justify-center gap-1.5 pt-2 mt-2 border-t border-white/10">
-      <button onclick="switchRealm('gate')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-gold-antique/20 text-gold-antique border border-gold-antique/40">01. 포털 게이트</button>
-      <button onclick="switchRealm('realm')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-teal-ethereal/20 text-teal-ethereal border border-teal-ethereal/40">02. 3D 전술 도감</button>
-      <button onclick="switchRealm('science')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-volcanic-ember/20 text-volcanic-ember border border-volcanic-ember/40">03. 심층 고증</button>
+      <button id="navRealmMobile-gate" onclick="switchRealm('gate')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-gold-antique text-obsidian border border-gold-antique shadow-sm">01. 포털 게이트</button>
+      <button id="navRealmMobile-realm" onclick="switchRealm('realm')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-charcoal/80 text-slateCustom border border-white/15">02. 3D 전술 도감</button>
+      <button id="navRealmMobile-science" onclick="switchRealm('science')" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-charcoal/80 text-slateCustom border border-white/15">03. 심층 고증</button>
     </div>
   </header>
 
@@ -404,7 +404,7 @@
   <!-- =========================================================================
        VIEW 01: THE GENESIS GATE (제네시스 게이트 — 거북선 포털 랜딩)
        ========================================================================= -->
-  <section id="view-gate" class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-24 sm:pt-28 pb-10 text-center max-w-5xl mx-auto w-full my-auto">
+  <section id="view-gate" class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-28 md:pt-24 pb-10 text-center max-w-5xl mx-auto w-full my-auto">
 
     <!-- SPATIAL PORTAL RING CONTAINER (High-Detail Sculpted Geobukseon Diorama + 3D Orbit) -->
     <div class="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 my-1 flex items-center justify-center">
@@ -543,10 +543,10 @@
 
 
   <!-- =========================================================================
-       VIEW 02: SPATIAL STORYTELLING CANVAS (3D 디오라마 + .GLB + 3D 구조 해부)
+       VIEW 02: SPATIAL STORYTELLING CANVAS (실물 .GLB 3D + AI 3D 디오라마)
        Benchmarked from metadwipa.id/tangkuban-parahu.html
        ========================================================================= -->
-  <section id="view-realm" class="hidden relative z-10 pt-20 sm:pt-24 pb-6 w-full flex-1 flex flex-col justify-between">
+  <section id="view-realm" class="hidden relative z-10 pt-28 md:pt-24 pb-6 w-full flex-1 flex flex-col justify-between">
 
     <!-- 4 IMMERSIVE BUTTONS (DESKTOP RIGHT DOCK) -->
     <aside class="hidden lg:flex fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 flex-col space-y-3.5 pointer-events-auto">
@@ -614,7 +614,34 @@
           <!-- Atmospheric Radial Backlight (Matching MetaDwipa's Perahu Purba Viewport) -->
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(30,45,58,0.65)_0%,rgba(13,17,23,0.92)_78%)] pointer-events-none z-0"></div>
 
-          <div class="w-full h-[390px] sm:h-[460px] lg:h-[510px] relative flex items-center justify-center z-10 overflow-hidden">
+          <!-- UNIFIED NON-OVERLAPPING TOP CONTROL BAR (Model Switcher & View Mode) -->
+          <div class="relative z-30 flex flex-wrap items-center justify-between gap-1.5 px-2.5 py-2 mb-1.5 bg-charcoal/75 backdrop-blur-md rounded-xl border border-white/10">
+            <!-- Left Group: Direct .GLB Model Selection -->
+            <div class="flex items-center gap-1.5">
+              <button onclick="switchDirectGlbModel('geobukseon')" id="directGlbBtn-geobukseon" class="px-2.5 sm:px-3 py-1 rounded-full bg-teal-ethereal text-obsidian border border-teal-ethereal text-[10px] font-mono font-bold transition-all shadow-teal-glow flex items-center space-x-1 cursor-pointer" title="거북선 3D 모델 (bbd6136208bf4951abfdfa1c8d4fa103.glb) 바로 보기">
+                <span>🐉 거북선 3D</span>
+              </button>
+              <button onclick="switchDirectGlbModel('cheonja')" id="directGlbBtn-cheonja" class="px-2.5 sm:px-3 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="천자총통 3D 모델 (cheonja_chongtong_gun.glb) 바로 보기">
+                <span>💣 천자총통 3D</span>
+              </button>
+            </div>
+
+            <!-- Right Group: Render Mode (GLB vs Diorama) & Local File Upload -->
+            <div class="flex items-center gap-1.5">
+              <button onclick="setRenderMode('glb')" id="modeBtnGlb" class="px-2.5 py-1 rounded-full bg-gold-antique text-obsidian border border-gold-antique text-[10px] font-mono font-bold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="실제 .GLB 3D 모델 (거북선 & 천자총통) 360도 뷰어">
+                <span>🧊 실물 3D</span>
+              </button>
+              <button onclick="setRenderMode('diorama')" id="modeBtnDiorama" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-gold-antique text-gold-muted border border-gold-antique/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="AI 3D 조각 디오라마 아트워크 턴테이블 뷰">
+                <span>🎨 디오라마</span>
+              </button>
+              <button onclick="triggerGlbUpload()" class="px-2 py-1 rounded-full bg-obsidian/85 hover:bg-teal-ethereal hover:text-obsidian text-slateCustom border border-white/20 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="내 PC의 다른 .GLB 3D 모델 파일을 추가로 불러옵니다">
+                <span>📂</span>
+                <span class="hidden sm:inline">파일 열기</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full h-[360px] sm:h-[440px] lg:h-[470px] relative flex items-center justify-center z-10 overflow-hidden rounded-xl">
 
             <!-- Dynamic Floating Golden & Teal Aura Sparks Canvas -->
             <canvas id="relicAuraCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
@@ -629,7 +656,7 @@
               "></div>
 
               <!-- 3D Gimbal Wrapper for Sculpted Diorama Image -->
-              <div id="dioramaGimbalCard" class="diorama-card-3d relative flex items-center justify-center w-[88%] h-[88%] max-w-[540px] max-h-[460px]">
+              <div id="dioramaGimbalCard" class="diorama-card-3d relative flex items-center justify-center w-[88%] h-[88%] max-w-[540px] max-h-[440px]">
                 <img
                   id="activeDioramaImg"
                   src="assets/diorama-node0.png"
@@ -660,78 +687,39 @@
               class="w-full h-full cursor-grab active:cursor-grabbing relative z-10">
             </model-viewer>
 
-            <!-- LAYER C: THREE.JS 3D STRUCTURAL ANATOMY & EXPLODED VIEW CANVAS -->
-            <div id="realm3DCanvasContainer" class="hidden w-full h-full cursor-grab active:cursor-grabbing relative z-10"></div>
-
-            <!-- TOP-LEFT DIRECT 3D .GLB MODEL SELECTOR (거북선 vs 천자총통) -->
-            <div class="absolute top-3 left-3 z-30 flex flex-wrap items-center gap-1.5 pointer-events-auto">
-              <button onclick="switchDirectGlbModel('geobukseon')" id="directGlbBtn-geobukseon" class="px-3 py-1 rounded-full bg-teal-ethereal text-obsidian border border-teal-ethereal text-[10px] font-mono font-bold transition-all shadow-teal-glow flex items-center space-x-1 cursor-pointer" title="거북선 3D 모델 (bbd6136208bf4951abfdfa1c8d4fa103.glb) 바로 보기">
-                <span>🐉 거북선 3D (.GLB)</span>
-              </button>
-              <button onclick="switchDirectGlbModel('cheonja')" id="directGlbBtn-cheonja" class="px-3 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="천자총통 3D 모델 (cheonja_chongtong_gun.glb) 바로 보기">
-                <span>💣 천자총통 3D (.GLB)</span>
-              </button>
-            </div>
-
-            <!-- TOP-RIGHT .GLB UPLOAD & MODE SWITCHER PILLS -->
-            <div class="absolute top-3 right-3 z-30 flex flex-wrap items-center justify-end gap-1.5 pointer-events-auto">
-              <button onclick="setRenderMode('glb')" id="modeBtnGlb" class="px-2.5 py-1 rounded-full bg-gold-antique text-obsidian border border-gold-antique text-[10px] font-mono font-bold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="실제 .GLB 3D 모델 (거북선 & 천자총통) 360도 뷰어">
-                <span>🧊 실물 .GLB 3D</span>
-              </button>
-              <button onclick="setRenderMode('diorama')" id="modeBtnDiorama" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-gold-antique text-gold-muted border border-gold-antique/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="AI 3D 조각 디오라마 아트워크 턴테이블 뷰">
-                <span>🎨 디오라마 뷰</span>
-              </button>
-              <button onclick="setRenderMode('anatomy')" id="anatomyModeBtn" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/40 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="WebGL 3D 선체 해부(X-Ray / 3층 분리 / 화포 발사) 시뮬레이션">
-                <span>⚙ 3D 구조 해부</span>
-              </button>
-              <button onclick="triggerGlbUpload()" class="px-2.5 py-1 rounded-full bg-obsidian/85 hover:bg-teal-ethereal hover:text-obsidian text-slateCustom border border-white/20 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer" title="내 PC의 다른 .GLB 3D 모델 파일을 추가로 불러옵니다">
-                <span>📂 파일 열기</span>
-              </button>
-            </div>
-
-            <!-- 3D CANVAS RELIC TITLE HUD (Bottom-Left — Identical to MetaDwipa HUD) -->
-            <div class="absolute bottom-4 left-4 z-30 pointer-events-none select-none max-w-[290px]">
-              <div class="flex flex-col space-y-0.5 bg-obsidian/80 backdrop-blur-md px-4 py-3 rounded-xl border border-gold-antique/35 shadow-lg">
-                <span id="activeModelNode" class="text-[11px] sm:text-xs font-mono font-bold tracking-widest text-teal-ethereal uppercase">
-                  NODE 01
-                </span>
-                <span id="activeModelTitle" class="font-display font-black text-base sm:text-lg lg:text-xl text-offwhite tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(212,175,55,0.8)] leading-tight">
-                  용두 (龍頭)
-                </span>
-                <span id="activeModelSubtitle" class="font-sans text-xs sm:text-[13px] font-semibold text-gold-muted tracking-wide uppercase truncate">
-                  유황 연막과 함수포
-                </span>
-              </div>
-            </div>
-
-            <!-- 3D CANVAS STATUS & CONTROLS (Bottom-Right — Identical to MetaDwipa HUD) -->
-            <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end space-y-2 pointer-events-auto">
-              <!-- Mode Badge (Click to cycle: AI 3D Diorama / 3D Anatomy / Cloud GLB) -->
-              <button onclick="cycleRenderMode()" id="modelSourceStatusBadge" class="px-3.5 py-1.5 rounded-full bg-charcoal/90 backdrop-blur-md hover:border-gold-antique text-gold-muted text-[10px] sm:text-[11px] font-mono border border-gold-antique/45 flex items-center space-x-1.5 shadow-md cursor-pointer transition-all" title="클릭하여 렌더링 모드 전환 (AI 3D 디오라마 / 3D 구조 해부 / .GLB 뷰어)">
-                <span class="w-1.5 h-1.5 rounded-full bg-teal-ethereal animate-pulse"></span>
-                <span id="modelSourceModeLabel">Mode: AI 3D 디오라마</span>
-              </button>
-
-              <!-- Anatomy-only controls (Shown when in 3D Anatomy mode) -->
-              <div id="anatomySubControls" class="hidden flex-col items-end space-y-1.5">
-                <button onclick="triggerActionFire()" class="px-3 py-1 rounded-full bg-gradient-to-r from-volcanic-ember to-gold-antique text-obsidian font-mono font-bold text-[10px] shadow-volcanic-glow cursor-pointer">
-                  🔥 <span id="fireActionLabel">화포·용두 화염 발사</span>
-                </button>
-                <button onclick="toggleExplodeMode()" class="px-3 py-1 rounded-full bg-charcoal/90 text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono cursor-pointer">
-                  <span id="explodeModeLabel">구조 분해(Explode): 꺼짐</span>
-                </button>
-                <button onclick="toggleXRayMode()" class="px-3 py-1 rounded-full bg-charcoal/90 text-gold-muted border border-gold-antique/45 text-[10px] font-mono cursor-pointer">
-                  <span id="xrayModeLabel">내부 투시(X-Ray): 꺼짐</span>
-                </button>
+            <!-- UNIFIED NON-OVERLAPPING BOTTOM HUD OVERLAY (Relic Title Left + Mode/Spin Right) -->
+            <div class="absolute bottom-2.5 inset-x-2.5 sm:bottom-4 sm:inset-x-4 z-30 flex items-end justify-between gap-2 pointer-events-none">
+              <!-- Left: Relic Title HUD -->
+              <div class="pointer-events-none select-none min-w-0 flex-1 max-w-[56%] sm:max-w-[280px]">
+                <div class="flex flex-col space-y-0.5 bg-obsidian/85 backdrop-blur-md px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-gold-antique/35 shadow-lg">
+                  <span id="activeModelNode" class="text-[10px] sm:text-xs font-mono font-bold tracking-widest text-teal-ethereal uppercase truncate">
+                    NODE 01
+                  </span>
+                  <span id="activeModelTitle" class="font-display font-black text-sm sm:text-lg lg:text-xl text-offwhite tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(212,175,55,0.8)] leading-tight truncate">
+                    용두 (龍頭)
+                  </span>
+                  <span id="activeModelSubtitle" class="font-sans text-[11px] sm:text-[13px] font-semibold text-gold-muted tracking-wide uppercase truncate">
+                    유황 연막과 함수포
+                  </span>
+                </div>
               </div>
 
-              <!-- Auto Spin Button -->
-              <button id="quickInspectBtn" onclick="toggleInspect360()" class="px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md hover:bg-gold-antique hover:text-obsidian text-gold-antique border border-gold-antique/50 text-[10px] sm:text-[11px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                <span id="autoSpinLabel">Auto Spin: ON</span>
-              </button>
+              <!-- Right: Mode Status & Auto Spin Controls -->
+              <div class="flex flex-col items-end space-y-1.5 sm:space-y-2 pointer-events-auto shrink-0">
+                <!-- Mode Badge (Click to toggle: 실물 .GLB 3D <-> AI 3D 디오라마) -->
+                <button onclick="cycleRenderMode()" id="modelSourceStatusBadge" class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-charcoal/90 backdrop-blur-md hover:border-gold-antique text-gold-muted text-[9px] sm:text-[11px] font-mono border border-gold-antique/45 flex items-center space-x-1.5 shadow-md cursor-pointer transition-all" title="클릭하여 실물 .GLB 3D 뷰어와 AI 디오라마 뷰를 전환합니다">
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-ethereal animate-pulse shrink-0"></span>
+                  <span id="modelSourceModeLabel" class="truncate max-w-[125px] sm:max-w-[220px]">Mode: 거북선 3D (.GLB)</span>
+                </button>
+
+                <!-- Auto Spin Button -->
+                <button id="quickInspectBtn" onclick="toggleInspect360()" class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md hover:bg-gold-antique hover:text-obsidian text-gold-antique border border-gold-antique/50 text-[9px] sm:text-[11px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer">
+                  <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  <span id="autoSpinLabel">Auto Spin: ON</span>
+                </button>
+              </div>
             </div>
 
           </div>
@@ -956,7 +944,7 @@
        VIEW 03: THE PRISMATIC PERSPECTIVES (다학제 심층 고증 아카이브)
        Benchmarked from metadwipa.id/kajian-tangkuban-parahu.html
        ========================================================================= -->
-  <section id="view-science" class="hidden relative z-10 pt-20 sm:pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow">
+  <section id="view-science" class="hidden relative z-10 pt-28 md:pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow">
 
     <!-- Editorial Header -->
     <header class="text-center max-w-4xl mx-auto mb-6 sm:mb-8">
@@ -1050,14 +1038,14 @@
       <div class="lg:col-span-5 flex flex-col justify-between space-y-3.5">
 
         <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden border border-borderCustom shadow-2xl">
-          <div class="flex items-center justify-between mb-2 z-10">
-            <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-volcanic-ember animate-pulse"></span>
-              <span class="text-xs font-mono font-bold text-pualam tracking-wider" id="topoHudTitle">3D 해협 수심 & 학익진 전술 지형도</span>
+          <div class="flex flex-wrap items-center justify-between gap-1.5 mb-2 z-10">
+            <div class="flex items-center space-x-2 min-w-0">
+              <span class="w-2 h-2 rounded-full bg-volcanic-ember animate-pulse shrink-0"></span>
+              <span class="text-xs font-mono font-bold text-pualam tracking-wider truncate" id="topoHudTitle">3D 해협 수심 & 학익진 전술 지형도</span>
             </div>
-            <div class="flex items-center space-x-1 text-[10px] font-mono text-slateMuted">
+            <div class="flex items-center space-x-1 text-[10px] font-mono text-slateMuted shrink-0">
               <span class="px-1.5 py-0.5 rounded bg-container border border-borderCustom text-gold-antique">LAT 34.782° N</span>
-              <span class="px-1.5 py-0.5 rounded bg-container border border-borderCustom text-teal-ethereal">LON 128.475° E</span>
+              <span class="hidden sm:inline px-1.5 py-0.5 rounded bg-container border border-borderCustom text-teal-ethereal">LON 128.475° E</span>
               <button onclick="reset3DCamera()" class="p-1 hover:text-pualam text-slateMuted transition-colors cursor-pointer" title="3D 카메라 초기화">↺</button>
             </div>
           </div>
@@ -1118,12 +1106,12 @@
             </div>
           </div>
 
-          <div class="mt-2.5 p-2.5 rounded-xl bg-obsidian/75 border border-borderCustom flex items-center justify-between">
+          <div class="mt-2.5 p-2.5 rounded-xl bg-obsidian/75 border border-borderCustom flex flex-wrap items-center justify-between gap-2">
             <span class="text-[11px] font-mono text-slateMuted" id="perspectiveLabelSwitch">관점 전환:</span>
-            <div class="flex items-center space-x-2 text-[11px] font-mono">
+            <div class="flex items-center space-x-2 text-[10px] sm:text-[11px] font-mono">
               <span id="labelModeMitos" class="text-slateMuted">신화적 표상</span>
-              <button onclick="toggleVisualMode()" class="w-12 h-6 rounded-full bg-container border border-borderCustom p-0.5 flex items-center transition-all cursor-pointer relative">
-                <div id="modeToggleThumb" class="w-5 h-5 rounded-full bg-volcanic-ember transition-transform duration-300 transform translate-x-6"></div>
+              <button onclick="toggleVisualMode()" class="w-11 sm:w-12 h-6 rounded-full bg-container border border-borderCustom p-0.5 flex items-center transition-all cursor-pointer relative shrink-0">
+                <div id="modeToggleThumb" class="w-5 h-5 rounded-full bg-volcanic-ember transition-transform duration-300 transform translate-x-5 sm:translate-x-6"></div>
               </button>
               <span id="labelModeGeologi" class="text-volcanic-ember font-semibold">해양공학·전술 데이터</span>
             </div>

@@ -419,28 +419,29 @@ function switchRealm(realmName) {
     }
   });
 
-  // Update Top Realm Navigation Pills
+  // Update Top Realm Navigation Pills (Desktop & Mobile)
   ['gate', 'realm', 'science'].forEach(k => {
     const pill = document.getElementById(`navRealmBtn-${k}`);
-    if (!pill) return;
-    if (k === realmName) {
-      pill.className = "px-2.5 sm:px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold transition-all bg-gradient-to-r from-gold-antique to-teal-ethereal text-obsidian shadow-gold-glow cursor-pointer";
-    } else {
-      pill.className = "px-2.5 sm:px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-mono font-medium text-slateCustom hover:text-offwhite transition-all cursor-pointer";
+    if (pill) {
+      if (k === realmName) {
+        pill.className = "px-2.5 sm:px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold transition-all bg-gradient-to-r from-gold-antique to-teal-ethereal text-obsidian shadow-gold-glow cursor-pointer";
+      } else {
+        pill.className = "px-2.5 sm:px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-mono font-medium text-slateCustom hover:text-offwhite transition-all cursor-pointer";
+      }
+    }
+    const mobPill = document.getElementById(`navRealmMobile-${k}`);
+    if (mobPill) {
+      if (k === realmName) {
+        mobPill.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-gold-antique text-obsidian border border-gold-antique shadow-sm cursor-pointer";
+      } else {
+        mobPill.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-charcoal/80 text-slateCustom border border-white/15 cursor-pointer";
+      }
     }
   });
 
   // Trigger resize so Three.js canvases fit their newly visible containers
   setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
-    if (realmName === 'realm' && typeof realmRenderer !== 'undefined' && realmRenderer) {
-      const c = document.getElementById('realm3DCanvasContainer');
-      if (c && c.clientWidth > 0) {
-        realmCamera.aspect = c.clientWidth / c.clientHeight;
-        realmCamera.updateProjectionMatrix();
-        realmRenderer.setSize(c.clientWidth, c.clientHeight);
-      }
-    }
     if (realmName === 'science' && typeof topoRenderer !== 'undefined' && topoRenderer) {
       const c = document.getElementById('topo3dContainer');
       if (c && c.clientWidth > 0) {
@@ -665,8 +666,8 @@ function updateDirectGlbButtons(targetSrc) {
   const btnCheon = document.getElementById('directGlbBtn-cheonja');
   const isCheonja = targetSrc && targetSrc.toLowerCase().includes('cheonja');
 
-  const activeTeal = "px-3 py-1 rounded-full bg-teal-ethereal text-obsidian border border-teal-ethereal text-[10px] font-mono font-bold transition-all shadow-teal-glow flex items-center space-x-1 cursor-pointer";
-  const inactiveTeal = "px-3 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer";
+  const activeTeal = "px-2.5 sm:px-3 py-1 rounded-full bg-teal-ethereal text-obsidian border border-teal-ethereal text-[10px] font-mono font-bold transition-all shadow-teal-glow flex items-center space-x-1 cursor-pointer";
+  const inactiveTeal = "px-2.5 sm:px-3 py-1 rounded-full bg-obsidian/85 hover:border-teal-ethereal text-teal-ethereal border border-teal-ethereal/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer";
 
   if (btnGeo) btnGeo.className = !isCheonja ? activeTeal : inactiveTeal;
   if (btnCheon) btnCheon.className = isCheonja ? activeTeal : inactiveTeal;
@@ -687,45 +688,31 @@ function switchDirectGlbModel(type) {
 }
 
 function setRenderMode(mode) {
+  if (mode !== 'glb' && mode !== 'diorama') mode = 'glb';
   currentRenderMode = mode;
   const stageDiorama = document.getElementById('diorama3DStage');
   const stageGlb = document.getElementById('relicViewer');
-  const stageAnatomy = document.getElementById('realm3DCanvasContainer');
-  const subControls = document.getElementById('anatomySubControls');
   const modeLabel = document.getElementById('modelSourceModeLabel');
   const statusEl = document.getElementById('relicSyncStatus');
 
   const btnGlb = document.getElementById('modeBtnGlb');
   const btnDiorama = document.getElementById('modeBtnDiorama');
-  const btnAnatomy = document.getElementById('anatomyModeBtn');
 
   const activePillClass = "px-2.5 py-1 rounded-full bg-gold-antique text-obsidian border border-gold-antique text-[10px] font-mono font-bold transition-all shadow-md flex items-center space-x-1 cursor-pointer";
   const inactivePillClass = "px-2.5 py-1 rounded-full bg-obsidian/85 hover:border-gold-antique text-gold-muted border border-gold-antique/45 text-[10px] font-mono font-semibold transition-all shadow-md flex items-center space-x-1 cursor-pointer";
 
   if (btnGlb) btnGlb.className = mode === 'glb' ? activePillClass : inactivePillClass;
   if (btnDiorama) btnDiorama.className = mode === 'diorama' ? activePillClass : inactivePillClass;
-  if (btnAnatomy) btnAnatomy.className = mode === 'anatomy' ? activePillClass : inactivePillClass;
 
   if (stageDiorama) stageDiorama.classList.toggle('hidden', mode !== 'diorama');
   if (stageGlb) stageGlb.classList.toggle('hidden', mode !== 'glb');
-  if (stageAnatomy) stageAnatomy.classList.toggle('hidden', mode !== 'anatomy');
-
-  if (subControls) {
-    if (mode === 'anatomy') {
-      subControls.classList.remove('hidden');
-      subControls.classList.add('flex');
-    } else {
-      subControls.classList.add('hidden');
-      subControls.classList.remove('flex');
-    }
-  }
 
   const chap = window.CHAPTERS_DB[currentChapterIndex] || window.CHAPTERS_DB[0];
 
   if (mode === 'diorama') {
-    if (modeLabel) modeLabel.textContent = 'Mode: AI 3D 디오라마 턴테이블';
-    if (statusEl) statusEl.textContent = 'STATUS: SIAP / 3D 디오라마 활성';
-  } else if (mode === 'glb') {
+    if (modeLabel) modeLabel.textContent = 'Mode: AI 3D 디오라마';
+    if (statusEl) statusEl.textContent = 'STATUS: SIAP / 디오라마 활성';
+  } else {
     const mv = document.getElementById('relicViewer');
     const targetSrc = customGlbBlobUrl || chap.localModel || 'bbd6136208bf4951abfdfa1c8d4fa103.glb';
     if (mv) {
@@ -740,45 +727,20 @@ function setRenderMode(mode) {
       }
     }
     updateDirectGlbButtons(targetSrc);
-    const modelName = customGlbFileName || (targetSrc.includes('cheonja') ? '천자총통 3D (cheonja_chongtong_gun.glb)' : '거북선 3D (bbd6136208bf4951abfdfa1c8d4fa103.glb)');
+    const modelName = customGlbFileName || (targetSrc.includes('cheonja') ? '천자총통 3D (.GLB)' : '거북선 3D (.GLB)');
     if (modeLabel) modeLabel.textContent = `Mode: ${modelName}`;
-    if (statusEl) statusEl.textContent = 'STATUS: SIAP / .GLB 3D 엔진 활성';
-  } else if (mode === 'anatomy') {
-    if (modeLabel) modeLabel.textContent = 'Mode: 3D 구조 해부 (X-Ray · 분해)';
-    if (statusEl) statusEl.textContent = 'STATUS: 3D ANATOMY X-RAY';
-    setTimeout(() => {
-      if (typeof realmRenderer !== 'undefined' && realmRenderer) {
-        const c = document.getElementById('realm3DCanvasContainer');
-        if (c && c.clientWidth > 0) {
-          realmCamera.aspect = c.clientWidth / c.clientHeight;
-          realmCamera.updateProjectionMatrix();
-          realmRenderer.setSize(c.clientWidth, c.clientHeight);
-        }
-      }
-    }, 30);
+    if (statusEl) statusEl.textContent = 'STATUS: SIAP / .GLB 3D 활성';
   }
 }
 
 function cycleRenderMode() {
-  const order = ['glb', 'diorama', 'anatomy'];
-  const next = order[(order.indexOf(currentRenderMode) + 1) % order.length];
+  const next = currentRenderMode === 'glb' ? 'diorama' : 'glb';
   setRenderMode(next);
   const names = {
-    glb: '실물 3D .GLB 모델 뷰어 모드 (geobukseon.glb / cheonja.glb)',
-    diorama: 'AI 3D 조각 디오라마 턴테이블 모드',
-    anatomy: 'WebGL 3D 선체 해부·X-Ray·화포 시뮬레이션 모드'
+    glb: '실물 3D .GLB 모델 뷰어 모드 (거북선 / 천자총통)',
+    diorama: 'AI 3D 조각 디오라마 턴테이블 모드'
   };
   showToast(names[next]);
-}
-
-function toggleAnatomy3DMode() {
-  if (currentRenderMode !== 'anatomy') {
-    setRenderMode('anatomy');
-    showToast("WebGL 3D 구조 해부(X-Ray / 3층 분해) 모드로 전환되었습니다.");
-  } else {
-    setRenderMode('glb');
-    showToast("실물 3D .GLB 모델 뷰어 모드로 복귀했습니다.");
-  }
 }
 
 function updateTimelineDockLabels() {
@@ -889,14 +851,10 @@ function selectChapter(index) {
   }
   updateDirectGlbButtons(targetGlb);
 
-  // Update Layer C: Three.js 3D Structural Anatomy
-  loadRealmNode3D(index);
   renderChapterContent(index);
 
-  // Automatically switch between real GLB (for Nodes 0~3) and sculpted Diorama (for Nodes 4~5) unless user is in Anatomy mode
-  if (currentRenderMode !== 'anatomy') {
-    setRenderMode(customGlbBlobUrl ? 'glb' : (chap.defaultMode || 'glb'));
-  }
+  // Switch between real GLB (for Nodes 0~3) and sculpted Diorama (for Nodes 4~5)
+  setRenderMode(customGlbBlobUrl ? 'glb' : (chap.defaultMode || 'glb'));
 
   // Highlight active timeline node card
   const nodes = document.querySelectorAll('.timeline-node');
@@ -1423,7 +1381,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initRelicAuraAndMist();
   initDiorama3DTurntable();
   initGateThreeJS();
-  initRealmThreeJS();
   init3DTopography();
   initAudioAutoplay();
 
